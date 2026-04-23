@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tasks – StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="tasks.html" class="active">Tasks</a></li>
+      <li><a href="timer.html">Timer</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='timer.html'">Start Timer</button>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="page-header">
+      <h1>My Tasks</h1>
+      <p class="page-sub">Stay organised. Complete what matters.</p>
+    </div>
+
+    <div class="task-form-card">
+      <input
+        type="text"
+        id="task-input"
+        class="task-input"
+        placeholder="Add a new task... (e.g. Study Chapter 4)"
+        maxlength="100"
+      />
+      <div class="task-form-row">
+        <select id="task-priority" class="task-select">
+          <option value="low">🟢 Low Priority</option>
+          <option value="medium" selected>🟡 Medium Priority</option>
+          <option value="high">🔴 High Priority</option>
+        </select>
+        <button class="btn-primary" onclick="addTask()">+ Add Task</button>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterTasks('all', this)">All</button>
+      <button class="filter-tab" onclick="filterTasks('pending', this)">Pending</button>
+      <button class="filter-tab" onclick="filterTasks('completed', this)">Completed</button>
+    </div>
+
+    <div class="task-list-section">
+      <ul class="task-list" id="task-list"></ul>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="empty-icon">📭</div>
+        <p>No tasks here yet.</p>
+        <small>Add one above to get started!</small>
+      </div>
+    </div>
+
+    <div class="task-actions">
+      <button class="btn-outline-sm" onclick="clearCompleted()">🗑 Clear Completed</button>
+      <span class="task-count-info" id="task-count-info">0 tasks</span>
+    </div>
+
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/tasks.js"></script>
+</body>
+</html>
