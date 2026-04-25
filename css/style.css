@@ -972,7 +972,7 @@ ul {
   font-weight: 700;
   font-size: 1rem;
   padding: 0.8rem 2rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md);bgv `
   cursor: pointer;
   transition: var(--transition);
   min-width: 130px;
