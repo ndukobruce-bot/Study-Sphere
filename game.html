@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Math Challenge – StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="timer.html">Timer</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='timer.html'">Back to Timer</button>
+  </nav>
+
+  <div class="page-wrapper game-page">
+
+    <div class="page-header" style="text-align:center;">
+      <h1>🧮 Math Challenge</h1>
+      <p class="page-sub">Stay sharp during your break!</p>
+    </div>
+
+    <!-- GAME STATS BAR -->
+    <div class="game-stats">
+      <div class="game-stat">
+        <div class="game-stat-val" id="g-score">0</div>
+        <div class="game-stat-label">Score</div>
+      </div>
+      <div class="game-stat">
+        <div class="game-stat-val" id="g-level">1</div>
+        <div class="game-stat-label">Level</div>
+      </div>
+      <div class="game-stat">
+        <div class="game-stat-val" id="g-streak">0</div>
+        <div class="game-stat-label">Streak</div>
+      </div>
+      <div class="game-stat">
+        <div class="game-stat-val" id="g-timer">5:00</div>
+        <div class="game-stat-label">Break Time</div>
+      </div>
+    </div>
+
+    <!-- GAME CARD -->
+    <div class="game-card" id="game-card">
+
+      <!-- START SCREEN -->
+      <div id="start-screen">
+        <div class="game-emoji">🧮</div>
+        <h2>Math Challenge</h2>
+        <p>Solve as many problems as you can before your break ends!</p>
+        <br/>
+        <p>✅ Easy: Addition & Subtraction</p>
+        <p>⚡ Medium: Multiplication</p>
+        <p>🔥 Hard: Division & Mixed</p>
+        <br/>
+        <button class="btn-primary" onclick="startGame()" style="width:100%;">Start Challenge →</button>
+      </div>
+
+      <!-- QUESTION SCREEN -->
+      <div id="question-screen" style="display:none;">
+        <div class="difficulty-badge" id="difficulty-badge">Easy</div>
+        <div class="question-text" id="question-text">2 + 2 = ?</div>
+        <div class="answer-grid" id="answer-grid">
+          <!-- Answers rendered by JS -->
+        </div>
+        <div class="feedback-msg" id="feedback-msg"></div>
+      </div>
+
+      <!-- GAME OVER SCREEN -->
+      <div id="gameover-screen" style="display:none;">
+        <div class="game-emoji">🏆</div>
+        <h2>Time's Up!</h2>
+        <div class="final-score-card">
+          <div class="final-score-val" id="final-score">0</div>
+          <div class="final-score-label">Final Score</div>
+        </div>
+        <div class="final-stats">
+          <div class="final-stat">
+            <span id="final-correct">0</span>
+            <small>Correct</small>
+          </div>
+          <div class="final-stat">
+            <span id="final-wrong">0</span>
+            <small>Wrong</small>
+          </div>
+          <div class="final-stat">
+            <span id="final-level">1</span>
+            <small>Level Reached</small>
+          </div>
+        </div>
+        <div class="gameover-btns">
+          <button class="btn-primary" onclick="restartGame()">Play Again →</button>
+          <a href="timer.html" class="btn-outline">Back to Timer</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- HIGH SCORE -->
+    <div class="highscore-bar">
+      🏅 Best Score: <span id="high-score">0</span>
+    </div>
+
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
