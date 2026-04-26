@@ -1,7 +1,5 @@
-// ============================================
-//  STUDYSPHERE — game.js
-//  Math Challenge Break Game
-// ============================================
+// STUDYSPHERE - game.js
+// Math Challenge Break Game
 
 // ---- STATE ----
 let score        = 0;
