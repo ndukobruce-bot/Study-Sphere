@@ -1,214 +1,282 @@
-/* ============================================
-   GAME PAGE
-============================================ */
-.game-page {
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+// ============================================
+//  STUDYSPHERE — game.js
+//  Math Challenge Break Game
+// ============================================
+
+// ---- STATE ----
+let score        = 0;
+let level        = 1;
+let streak       = 0;
+let correctCount = 0;
+let wrongCount   = 0;
+let gameActive   = false;
+let breakSeconds = 5 * 60;
+let breakInterval = null;
+let correctAnswer = 0;
+
+// ---- HIGH SCORE ----
+let highScore = parseInt(localStorage.getItem("ss_highscore")) || 0;
+
+// ---- INIT PAGE ----
+window.onload = function() {
+  document.getElementById("high-score").textContent = highScore;
+  renderDifficultyInfo();
+};
+
+function renderDifficultyInfo() {
+  const startScreen = document.getElementById("start-screen");
+  if (!startScreen) return;
 }
 
-.game-stats {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  margin-bottom: 1.5rem;
-  justify-content: space-around;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
+// ---- START GAME ----
+function startGame() {
+  score        = 0;
+  level        = 1;
+  streak       = 0;
+  correctCount = 0;
+  wrongCount   = 0;
+  gameActive   = true;
+  breakSeconds = 5 * 60;
+
+  document.getElementById("start-screen").style.display    = "none";
+  document.getElementById("gameover-screen").style.display = "none";
+  document.getElementById("question-screen").style.display = "block";
+
+  updateStats();
+  nextQuestion();
+  startBreakTimer();
 }
 
-.game-stat {
-  text-align: center;
+// ---- RESTART ----
+function restartGame() {
+  clearInterval(breakInterval);
+  breakSeconds = 5 * 60;
+  startGame();
 }
 
-.game-stat-val {
-  font-family: var(--font-head);
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--accent);
+// ---- BREAK TIMER ----
+function startBreakTimer() {
+  clearInterval(breakInterval);
+  updateTimerDisplay();
+  breakInterval = setInterval(() => {
+    breakSeconds--;
+    updateTimerDisplay();
+    if (breakSeconds <= 0) {
+      clearInterval(breakInterval);
+      endGame();
+    }
+  }, 1000);
 }
 
-.game-stat-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 0.2rem;
+function updateTimerDisplay() {
+  const m = Math.floor(breakSeconds / 60).toString().padStart(2, "0");
+  const s = (breakSeconds % 60).toString().padStart(2, "0");
+  const el = document.getElementById("g-timer");
+  if (el) el.textContent = `${m}:${s}`;
 }
 
-.game-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 2.5rem 2rem;
-  width: 100%;
-  text-align: center;
-  margin-bottom: 1rem;
-  min-height: 350px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+// ---- GENERATE QUESTION ----
+function generateQuestion() {
+  let num1, num2, operator, answer;
+
+  if (level <= 2) {
+    num1     = Math.floor(Math.random() * 20) + 1;
+    num2     = Math.floor(Math.random() * 20) + 1;
+    operator = Math.random() > 0.5 ? "+" : "-";
+    if (operator === "-" && num2 > num1) {
+      [num1, num2] = [num2, num1];
+    }
+    answer = operator === "+" ? num1 + num2 : num1 - num2;
+
+  } else if (level <= 4) {
+    num1     = Math.floor(Math.random() * 12) + 1;
+    num2     = Math.floor(Math.random() * 12) + 1;
+    operator = "×";
+    answer   = num1 * num2;
+
+  } else {
+    const ops = ["+", "-", "×", "÷"];
+    operator  = ops[Math.floor(Math.random() * ops.length)];
+
+    if (operator === "÷") {
+      num2   = Math.floor(Math.random() * 11) + 2;
+      answer = Math.floor(Math.random() * 10) + 1;
+      num1   = num2 * answer;
+    } else if (operator === "×") {
+      num1   = Math.floor(Math.random() * 15) + 1;
+      num2   = Math.floor(Math.random() * 15) + 1;
+      answer = num1 * num2;
+    } else {
+      num1   = Math.floor(Math.random() * 50) + 10;
+      num2   = Math.floor(Math.random() * 50) + 1;
+      if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1];
+      answer = operator === "+" ? num1 + num2 : num1 - num2;
+    }
+  }
+
+  return { num1, num2, operator, answer };
 }
 
-.game-card h2 {
-  font-family: var(--font-head);
-  font-size: 1.6rem;
-  font-weight: 800;
-  margin-bottom: 0.8rem;
+// ---- NEXT QUESTION ----
+function nextQuestion() {
+  if (!gameActive) return;
+
+  const q = generateQuestion();
+  correctAnswer = q.answer;
+
+  const questionEl = document.getElementById("question-text");
+  if (questionEl) {
+    questionEl.textContent = `${q.num1} ${q.operator} ${q.num2} = ?`;
+  }
+
+  const badge = document.getElementById("difficulty-badge");
+  if (badge) {
+    if (level <= 2) {
+      badge.textContent = "Easy";
+      badge.className   = "difficulty-badge easy";
+    } else if (level <= 4) {
+      badge.textContent = "Medium";
+      badge.className   = "difficulty-badge medium";
+    } else {
+      badge.textContent = "Hard";
+      badge.className   = "difficulty-badge hard";
+    }
+  }
+
+  const answers = generateAnswers(q.answer);
+  renderAnswers(answers);
+
+  const feedbackEl = document.getElementById("feedback-msg");
+  if (feedbackEl) feedbackEl.textContent = "";
 }
 
-.game-card p {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
+// ---- GENERATE ANSWER OPTIONS ----
+function generateAnswers(correct) {
+  const answers = new Set([correct]);
+
+  while (answers.size < 4) {
+    const offset = Math.floor(Math.random() * 10) + 1;
+    const wrong  = Math.random() > 0.5 ? correct + offset : correct - offset;
+    if (wrong !== correct && wrong >= 0) answers.add(wrong);
+  }
+
+  return [...answers].sort(() => Math.random() - 0.5);
 }
 
-.game-emoji {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
+// ---- RENDER ANSWER BUTTONS ----
+function renderAnswers(answers) {
+  const grid = document.getElementById("answer-grid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  answers.forEach(ans => {
+    const btn       = document.createElement("button");
+    btn.className   = "answer-btn";
+    btn.textContent = ans;
+    btn.onclick     = () => checkAnswer(ans, btn);
+    grid.appendChild(btn);
+  });
 }
 
-.difficulty-badge {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.25rem 0.8rem;
-  border-radius: 999px;
-  margin-bottom: 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+// ---- CHECK ANSWER ----
+function checkAnswer(selected, btn) {
+  if (!gameActive) return;
+
+  const allBtns = document.querySelectorAll(".answer-btn");
+  allBtns.forEach(b => b.disabled = true);
+
+  const feedbackEl = document.getElementById("feedback-msg");
+
+  if (selected === correctAnswer) {
+    btn.classList.add("correct");
+    streak++;
+    correctCount++;
+
+    const points = streak >= 3 ? 20 : 10;
+    score += points;
+
+    if (correctCount % 5 === 0) {
+      level++;
+      if (feedbackEl) {
+        feedbackEl.textContent = `✅ +${points} pts — Level Up! 🚀`;
+        feedbackEl.style.color = "#7c5cfc";
+      }
+    } else if (streak >= 3) {
+      if (feedbackEl) {
+        feedbackEl.textContent = `✅ +${points} pts — ${streak} Streak! 🔥`;
+        feedbackEl.style.color = "#f59e0b";
+      }
+    } else {
+      if (feedbackEl) {
+        feedbackEl.textContent = `✅ Correct! +${points} pts`;
+        feedbackEl.style.color = "#22c55e";
+      }
+    }
+
+  } else {
+    btn.classList.add("wrong");
+    streak  = 0;
+    wrongCount++;
+    score   = Math.max(0, score - 5);
+
+    allBtns.forEach(b => {
+      if (parseInt(b.textContent) === correctAnswer) {
+        b.classList.add("correct");
+      }
+    });
+
+    if (feedbackEl) {
+      feedbackEl.textContent = `❌ Wrong! -5 pts. Answer was ${correctAnswer}`;
+      feedbackEl.style.color = "#ef4444";
+    }
+  }
+
+  updateStats();
+
+  setTimeout(() => {
+    if (gameActive) nextQuestion();
+  }, 1200);
 }
 
-.difficulty-badge.easy   { background: #22c55e20; color: var(--success); border: 1px solid #22c55e40; }
-.difficulty-badge.medium { background: #f59e0b20; color: var(--warning); border: 1px solid #f59e0b40; }
-.difficulty-badge.hard   { background: #ef444420; color: var(--danger);  border: 1px solid #ef444440; }
+// ---- UPDATE STATS ----
+function updateStats() {
+  const scoreEl  = document.getElementById("g-score");
+  const levelEl  = document.getElementById("g-level");
+  const streakEl = document.getElementById("g-streak");
 
-.question-text {
-  font-family: var(--font-head);
-  font-size: 2.8rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 2rem;
-  letter-spacing: -1px;
+  if (scoreEl)  scoreEl.textContent  = score;
+  if (levelEl)  levelEl.textContent  = level;
+  if (streakEl) streakEl.textContent = streak;
 }
 
-.answer-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
-}
+// ---- END GAME ----
+function endGame() {
+  gameActive = false;
+  clearInterval(breakInterval);
 
-.answer-btn {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-head);
-  font-size: 1.4rem;
-  font-weight: 700;
-  padding: 1rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("ss_highscore", highScore);
+    const hsEl = document.getElementById("high-score");
+    if (hsEl) hsEl.textContent = highScore;
+  }
 
-.answer-btn:hover:not(:disabled) {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-  color: var(--accent);
-  transform: translateY(-2px);
-}
+  const questionScreen  = document.getElementById("question-screen");
+  const gameoverScreen  = document.getElementById("gameover-screen");
+  const startScreen     = document.getElementById("start-screen");
 
-.answer-btn.correct {
-  background: #22c55e20;
-  border-color: var(--success);
-  color: var(--success);
-}
+  if (questionScreen) questionScreen.style.display = "none";
+  if (startScreen)    startScreen.style.display    = "none";
+  if (gameoverScreen) gameoverScreen.style.display = "block";
 
-.answer-btn.wrong {
-  background: #ef444420;
-  border-color: var(--danger);
-  color: var(--danger);
-}
+  const finalScore   = document.getElementById("final-score");
+  const finalCorrect = document.getElementById("final-correct");
+  const finalWrong   = document.getElementById("final-wrong");
+  const finalLevel   = document.getElementById("final-level");
 
-.answer-btn:disabled {
-  cursor: not-allowed;
-}
-
-.feedback-msg {
-  font-size: 0.95rem;
-  font-weight: 600;
-  min-height: 24px;
-  margin-top: 0.5rem;
-}
-
-.final-score-card {
-  background: var(--accent-dim);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-}
-
-.final-score-val {
-  font-family: var(--font-head);
-  font-size: 3.5rem;
-  font-weight: 800;
-  color: var(--accent);
-  line-height: 1;
-}
-
-.final-score-label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-top: 0.3rem;
-}
-
-.final-stats {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.final-stat {
-  text-align: center;
-}
-
-.final-stat span {
-  font-family: var(--font-head);
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  display: block;
-}
-
-.final-stat small {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.gameover-btns {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.highscore-bar {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 0.7rem 1.5rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  width: 100%;
-  text-align: center;
-}
-
-.highscore-bar span {
-  color: var(--warning);
-  font-weight: 700;
-  font-family: var(--font-head);
+  if (finalScore)   finalScore.textContent   = score;
+  if (finalCorrect) finalCorrect.textContent = correctCount;
+  if (finalWrong)   finalWrong.textContent   = wrongCount;
+  if (finalLevel)   finalLevel.textContent   = level;
 }
