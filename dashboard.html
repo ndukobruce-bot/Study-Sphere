@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard – StudySphere</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,8 +15,10 @@
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="planner.html">Planner</a></li>
       <li><a href="tasks.html">Tasks</a></li>
       <li><a href="timer.html">Timer</a></li>
+      <li><a href="game.html">Game</a></li>
     </ul>
     <button class="btn-nav" onclick="window.location.href='timer.html'">Start Timer</button>
   </nav>
@@ -67,6 +69,63 @@
       </div>
     </div>
 
+    <section class="notification-section" aria-labelledby="notification-title">
+      <div class="notification-head">
+        <div>
+          <h2 class="section-title" id="notification-title">Notifications</h2>
+          <p class="notification-sub" id="notification-sub">Your study updates will appear here.</p>
+        </div>
+        <div class="notification-actions">
+          <span class="notification-count" id="notification-count">0 new</span>
+          <button class="btn-outline-sm" type="button" id="clear-notifications">Mark all read</button>
+        </div>
+      </div>
+      <div class="notification-list" id="notification-list"></div>
+    </section>
+
+    <section class="student-hub-grid">
+      <div class="hub-panel">
+        <h2 class="section-title">Mood Check-In</h2>
+        <p class="notification-sub">Match your plan to your energy.</p>
+        <div class="mood-options" id="mood-options">
+          <button type="button" data-mood="low">Low</button>
+          <button type="button" data-mood="okay">Okay</button>
+          <button type="button" data-mood="great">Great</button>
+        </div>
+        <p class="hub-tip" id="mood-tip">Choose how you feel today.</p>
+      </div>
+
+      <div class="hub-panel">
+        <h2 class="section-title">Exam Countdown</h2>
+        <div class="mini-form">
+          <input id="exam-name" class="task-input" type="text" placeholder="Exam name">
+          <input id="exam-date" class="task-input" type="date">
+          <button id="add-exam-btn" class="btn-primary" type="button">Add</button>
+        </div>
+        <div class="mini-list" id="exam-list"></div>
+      </div>
+
+      <div class="hub-panel">
+        <h2 class="section-title">Subject Balance</h2>
+        <div class="subject-list" id="subject-list"></div>
+      </div>
+
+      <div class="hub-panel">
+        <h2 class="section-title">Revision Queue</h2>
+        <div class="revision-list" id="revision-list"></div>
+      </div>
+
+      <div class="hub-panel wide-panel">
+        <h2 class="section-title">Achievements</h2>
+        <div class="achievement-grid" id="achievement-grid"></div>
+      </div>
+
+      <div class="hub-panel wide-panel">
+        <h2 class="section-title">Study Analytics</h2>
+        <div class="analytics-grid" id="analytics-grid"></div>
+      </div>
+    </section>
+
     <div class="dash-quick">
       <h2 class="section-title">Quick Access</h2>
       <div class="quick-grid">
@@ -83,6 +142,14 @@
           <div class="quick-text">
             <div class="quick-name">Study Timer</div>
             <div class="quick-desc">Start a Pomodoro session</div>
+          </div>
+          <div class="quick-arrow">→</div>
+        </a>
+        <a href="planner.html" class="quick-card">
+          <div class="quick-icon">PL</div>
+          <div class="quick-text">
+            <div class="quick-name">Smart Planner</div>
+            <div class="quick-desc">Create a study schedule</div>
           </div>
           <div class="quick-arrow">→</div>
         </a>

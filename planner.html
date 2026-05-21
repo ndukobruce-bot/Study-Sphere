@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planner - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="planner.html" class="active">Planner</a></li>
+      <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="timer.html">Timer</a></li>
+      <li><a href="game.html">Game</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='tasks.html'">Add Task</button>
+  </nav>
+
+  <main class="page-wrapper planner-page">
+    <section class="page-header planner-hero">
+      <div>
+        <p class="arcade-kicker">Smart Planner</p>
+        <h1>Tell StudySphere what you want to do</h1>
+        <p class="page-sub">The planner will turn your goal, time, deadline, and energy into a practical study schedule.</p>
+      </div>
+    </section>
+
+    <section class="planner-grid">
+      <form class="planner-card" id="planner-form">
+        <label>
+          Goal
+          <textarea id="plan-goal" class="task-input" rows="3" placeholder="Example: Finish Biology Chapter 5 and revise for Friday's quiz"></textarea>
+        </label>
+        <div class="planner-form-grid">
+          <label>
+            Subject
+            <input id="plan-subject" class="task-input" type="text" placeholder="Biology">
+          </label>
+          <label>
+            Deadline
+            <input id="plan-deadline" class="task-input" type="date">
+          </label>
+          <label>
+            Hours per day
+            <input id="plan-hours" class="task-input" type="number" min="0.5" max="10" step="0.5" value="2">
+          </label>
+          <label>
+            Energy
+            <select id="plan-energy" class="task-select">
+              <option value="normal">Normal</option>
+              <option value="low">Low energy</option>
+              <option value="high">High energy</option>
+            </select>
+          </label>
+        </div>
+        <button class="btn-primary" type="submit">Create Schedule</button>
+      </form>
+
+      <aside class="planner-card online-notes-card">
+        <h2 class="section-title">Online Notes</h2>
+        <p class="page-sub">Jump straight into trusted learning resources.</p>
+        <div class="notes-search">
+          <input id="notes-query" class="task-input" type="text" placeholder="Search a topic...">
+          <button class="btn-primary" id="notes-search-btn" type="button">Search</button>
+        </div>
+        <div class="notes-links">
+          <a href="https://www.khanacademy.org/search?page_search_query=study" target="_blank" rel="noopener">Khan Academy</a>
+          <a href="https://openstax.org/subjects" target="_blank" rel="noopener">OpenStax Textbooks</a>
+          <a href="https://ocw.mit.edu/search/" target="_blank" rel="noopener">MIT OpenCourseWare</a>
+          <a href="https://scholar.google.com/" target="_blank" rel="noopener">Google Scholar</a>
+          <a href="https://www.youtube.com/results?search_query=study+notes" target="_blank" rel="noopener">Video Lessons</a>
+        </div>
+      </aside>
+    </section>
+
+    <section class="planner-card">
+      <div class="notification-head">
+        <div>
+          <h2 class="section-title">Generated Schedule</h2>
+          <p class="notification-sub" id="planner-summary">Create a plan to see your day-by-day schedule.</p>
+        </div>
+        <button class="btn-outline-sm" type="button" id="save-plan-btn">Save Plan</button>
+      </div>
+      <div class="schedule-list" id="schedule-list"></div>
+    </section>
+
+    <section class="planner-card">
+      <h2 class="section-title">Saved Plans</h2>
+      <div class="saved-plans" id="saved-plans"></div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/planner.js"></script>
+</body>
+</html>

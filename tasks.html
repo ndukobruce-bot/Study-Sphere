@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tasks – StudySphere</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,9 +15,10 @@
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="planner.html">Planner</a></li>
       <li><a href="tasks.html" class="active">Tasks</a></li>
       <li><a href="timer.html">Timer</a></li>
-      <li><a href="game.html">🎮 Game</a></li>
+      <li><a href="game.html">Game</a></li>
     </ul>
     <button class="btn-nav" onclick="window.location.href='timer.html'">Start Timer</button>
   </nav>
@@ -42,6 +43,8 @@
           <option value="medium" selected>🟡 Medium Priority</option>
           <option value="high">🔴 High Priority</option>
         </select>
+        <input type="text" id="task-subject" class="task-input task-inline-input" placeholder="Subject" maxlength="40" />
+        <input type="date" id="task-due" class="task-input task-inline-input" />
         <button class="btn-primary" onclick="addTask()">+ Add Task</button>
       </div>
     </div>

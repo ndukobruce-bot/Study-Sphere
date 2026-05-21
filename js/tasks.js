@@ -1,5 +1,5 @@
 // ============================================
-//  STUDYSPHERE — tasks.js
+//  STUDYSPHERE - tasks.js
 // ============================================
 
 function loadTasks() {
@@ -12,8 +12,10 @@ function saveTasks(tasks) {
 }
 
 function addTask() {
-  const input    = document.getElementById("task-input");
+  const input = document.getElementById("task-input");
   const priority = document.getElementById("task-priority");
+  const subject = document.getElementById("task-subject");
+  const due = document.getElementById("task-due");
 
   if (!input) return;
 
@@ -26,19 +28,20 @@ function addTask() {
   }
 
   const tasks = loadTasks();
-
-  const task = {
-    id:        Date.now(),
-    text:      text,
-    priority:  priority ? priority.value : "medium",
+  tasks.push({
+    id: Date.now(),
+    text: text,
+    priority: priority ? priority.value : "medium",
+    subject: subject && subject.value.trim() ? subject.value.trim() : "General",
+    dueDate: due ? due.value : "",
     completed: false,
     createdAt: new Date().toISOString()
-  };
+  });
 
-  tasks.push(task);
   saveTasks(tasks);
-
   input.value = "";
+  if (subject) subject.value = "";
+  if (due) due.value = "";
   renderTasks();
   updateTaskCount();
 }
@@ -53,7 +56,7 @@ function deleteTask(id) {
 
 function toggleTask(id) {
   const tasks = loadTasks();
-  const task  = tasks.find(t => t.id === id);
+  const task = tasks.find(t => t.id === id);
   if (task) task.completed = !task.completed;
   saveTasks(tasks);
   renderTasks();
@@ -78,13 +81,11 @@ function filterTasks(filter, btn) {
 }
 
 function renderTasks() {
-  const listEl  = document.getElementById("task-list");
+  const listEl = document.getElementById("task-list");
   const emptyEl = document.getElementById("empty-state");
-
   if (!listEl) return;
 
   let tasks = loadTasks();
-
   if (currentFilter === "pending") {
     tasks = tasks.filter(t => !t.completed);
   } else if (currentFilter === "completed") {
@@ -92,28 +93,31 @@ function renderTasks() {
   }
 
   listEl.innerHTML = "";
-
   if (tasks.length === 0) {
     if (emptyEl) emptyEl.style.display = "block";
     return;
   }
 
   if (emptyEl) emptyEl.style.display = "none";
-
   tasks.sort((a, b) => a.completed - b.completed);
 
   tasks.forEach(task => {
     const li = document.createElement("li");
-    li.className = `task-item${task.completed ? " completed" : ""}`;
+    const subject = task.subject || "General";
+    const dueLabel = formatDueLabel(task.dueDate);
 
+    li.className = `task-item${task.completed ? " completed" : ""}`;
     li.innerHTML = `
       <div class="task-checkbox${task.completed ? " done" : ""}"
            onclick="toggleTask(${task.id})"
            title="Mark complete">
       </div>
-      <span class="task-text">${escapeHtml(task.text)}</span>
+      <span class="task-text">
+        ${escapeHtml(task.text)}
+        <small class="task-meta">${escapeHtml(subject)}${dueLabel ? " • " + dueLabel : ""}</small>
+      </span>
       <span class="priority-badge ${task.priority}">${task.priority}</span>
-      <button class="task-delete" onclick="deleteTask(${task.id})" title="Delete task">✕</button>
+      <button class="task-delete" onclick="deleteTask(${task.id})" title="Delete task">x</button>
     `;
 
     listEl.appendChild(li);
@@ -124,11 +128,25 @@ function updateTaskCount() {
   const countEl = document.getElementById("task-count-info");
   if (!countEl) return;
 
-  const tasks     = loadTasks();
-  const total     = tasks.length;
+  const tasks = loadTasks();
+  const total = tasks.length;
   const completed = tasks.filter(t => t.completed).length;
-
   countEl.textContent = `${completed} / ${total} completed`;
+}
+
+function formatDueLabel(dateValue) {
+  if (!dateValue) return "";
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const due = new Date(dateValue + "T00:00:00");
+  const diff = Math.round((due - today) / 86400000);
+
+  if (diff < 0) return "overdue";
+  if (diff === 0) return "due today";
+  if (diff === 1) return "due tomorrow";
+  return `due in ${diff} days`;
 }
 
 function escapeHtml(text) {
@@ -139,7 +157,7 @@ function escapeHtml(text) {
 
 const taskInput = document.getElementById("task-input");
 if (taskInput) {
-  taskInput.addEventListener("keypress", function (e) {
+  taskInput.addEventListener("keypress", function(e) {
     if (e.key === "Enter") addTask();
   });
 }
