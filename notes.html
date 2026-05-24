@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notes - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="notes.html" class="active">Notes</a></li>
+      <li><a href="flashcards.html">Flashcards</a></li>
+      <li><a href="files.html">Files</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='planner.html'">Online Notes</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header">
+      <p class="arcade-kicker">Notes</p>
+      <h1>Build your study notebook</h1>
+      <p class="page-sub">Write notes, tag by subject, and search them later.</p>
+    </section>
+    <section class="feature-grid two-col">
+      <form class="feature-panel" id="note-form">
+        <label>Title<input id="note-title" class="task-input" type="text" required></label>
+        <label>Subject<input id="note-subject" class="task-input" type="text" required></label>
+        <label>Note<textarea id="note-body" class="task-input" rows="8" required></textarea></label>
+        <button class="btn-primary" type="submit">Save Note</button>
+      </form>
+      <section class="feature-panel">
+        <input id="note-search" class="task-input" type="search" placeholder="Search notes...">
+        <div class="feature-list" id="notes-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/features.js"></script>
+</body>
+</html>

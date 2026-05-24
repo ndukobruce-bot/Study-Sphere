@@ -15,6 +15,8 @@
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="planner.html">Planner</a></li>
       <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="notes.html">Notes</a></li>
       <li><a href="timer.html">Timer</a></li>
       <li><a href="game.html">Game</a></li>
       <li><a href="admin.html" class="active">Admin</a></li>
@@ -63,6 +65,11 @@
       </div>
       <div class="hub-panel wide-panel">
         <h2 class="section-title">App Data Overview</h2>
+        <div class="admin-actions">
+          <button class="btn-outline-sm" id="admin-export-btn" type="button">Export JSON</button>
+          <button class="btn-outline-sm" id="admin-announcement-btn" type="button">Save Announcement</button>
+        </div>
+        <input class="task-input" id="admin-announcement" type="text" placeholder="Announcement for students">
         <div class="analytics-grid" id="admin-data-grid"></div>
       </div>
       <div class="hub-panel wide-panel">

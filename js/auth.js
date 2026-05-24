@@ -179,6 +179,11 @@ function initAdminPage() {
   const plans = authLoad("ss_plans", []);
   const exams = authLoad("ss_exams", []);
   const pomodoros = authLoad("ss_pomodoros", {});
+  const notes = authLoad("ss_notes", []);
+  const flashcards = authLoad("ss_flashcards", []);
+  const grades = authLoad("ss_grades", []);
+  const files = authLoad("ss_files", []);
+  const groups = authLoad("ss_groups", []);
   const consented = students.filter(student => student.consented).length;
 
   setAdminText("admin-total-logins", events.filter(event => event.type === "login").length);
@@ -188,8 +193,10 @@ function initAdminPage() {
 
   renderAdminUsers(students);
   renderAdminEvents(events);
-  renderAdminDataGrid({ tasks, plans, exams, pomodoros, students, events });
-  renderAdminSnapshot({ students, events, tasks, plans, exams, pomodoros, currentUser: user });
+  const data = { tasks, plans, exams, pomodoros, students, events, notes, flashcards, grades, files, groups, currentUser: user };
+  renderAdminDataGrid(data);
+  renderAdminSnapshot(data);
+  initAdminActions(data);
 
   const logout = document.getElementById("admin-logout-btn");
   if (logout) logout.onclick = logoutUser;
@@ -241,7 +248,12 @@ function renderAdminDataGrid(data) {
     ["Exams", data.exams.length],
     ["Pomodoros", totalPomodoros],
     ["Students", data.students.length],
-    ["Events", data.events.length]
+    ["Events", data.events.length],
+    ["Notes", data.notes.length],
+    ["Flashcards", data.flashcards.length],
+    ["Grades", data.grades.length],
+    ["Files", data.files.length],
+    ["Groups", data.groups.length]
   ];
 
   grid.innerHTML = "";
@@ -257,6 +269,29 @@ function renderAdminSnapshot(data) {
   const snapshot = document.getElementById("admin-snapshot");
   if (!snapshot) return;
   snapshot.textContent = JSON.stringify(data, null, 2);
+}
+
+function initAdminActions(data) {
+  const exportBtn = document.getElementById("admin-export-btn");
+  const announcementBtn = document.getElementById("admin-announcement-btn");
+  if (exportBtn) {
+    exportBtn.onclick = function() {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "studysphere-admin-export.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    };
+  }
+  if (announcementBtn) {
+    announcementBtn.onclick = function() {
+      const input = document.getElementById("admin-announcement");
+      localStorage.setItem("ss_admin_announcement", input.value.trim());
+      input.value = "";
+    };
+  }
 }
 
 function setAdminText(id, value) {

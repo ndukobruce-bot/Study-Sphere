@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grades - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="grades.html" class="active">Grades</a></li>
+      <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="planner.html">Planner</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='tasks.html'">Tasks</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header">
+      <p class="arcade-kicker">Grade Tracker</p>
+      <h1>Track course progress</h1>
+      <p class="page-sub">Enter scores and weights to estimate your current grade.</p>
+    </section>
+    <section class="feature-grid two-col">
+      <form class="feature-panel" id="grade-form">
+        <label>Course<input id="grade-course" class="task-input" type="text" required></label>
+        <label>Assessment<input id="grade-title" class="task-input" type="text" required></label>
+        <div class="planner-form-grid">
+          <label>Score (%)<input id="grade-score" class="task-input" type="number" min="0" max="100" required></label>
+          <label>Weight (%)<input id="grade-weight" class="task-input" type="number" min="1" max="100" required></label>
+        </div>
+        <button class="btn-primary" type="submit">Add Grade</button>
+      </form>
+      <section class="feature-panel">
+        <div class="analytics-grid" id="grade-summary"></div>
+        <div class="feature-list" id="grade-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/features.js"></script>
+</body>
+</html>

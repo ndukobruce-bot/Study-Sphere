@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="planner.html">Planner</a></li>
+      <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="notes.html">Notes</a></li>
+      <li><a href="profile.html" class="active">Profile</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='dashboard.html'">Dashboard</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header">
+      <p class="arcade-kicker">Student Profile</p>
+      <h1>Your study identity</h1>
+      <p class="page-sub">Set your course, subjects, goals, and daily study target.</p>
+    </section>
+
+    <section class="feature-grid two-col">
+      <form class="feature-panel" id="profile-form">
+        <label>Full name<input id="profile-name" class="task-input" type="text"></label>
+        <label>Email<input id="profile-email" class="task-input" type="email" disabled></label>
+        <label>University<input id="profile-university" class="task-input" type="text"></label>
+        <label>Course / year<input id="profile-course" class="task-input" type="text"></label>
+        <label>Daily study target (minutes)<input id="profile-target" class="task-input" type="number" min="15" step="15"></label>
+        <label>Top subjects<textarea id="profile-subjects" class="task-input" rows="3" placeholder="Math, Programming, Biology"></textarea></label>
+        <label>Study goal<textarea id="profile-goal" class="task-input" rows="3" placeholder="What are you working toward this semester?"></textarea></label>
+        <button class="btn-primary" type="submit">Save Profile</button>
+      </form>
+
+      <aside class="feature-panel profile-summary">
+        <h2 class="section-title">Profile Summary</h2>
+        <div id="profile-summary"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/features.js"></script>
+</body>
+</html>

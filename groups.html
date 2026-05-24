@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Groups - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="groups.html" class="active">Groups</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="notes.html">Notes</a></li>
+      <li><a href="files.html">Files</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='calendar.html'">Calendar</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header">
+      <p class="arcade-kicker">Study Groups</p>
+      <h1>Coordinate with classmates</h1>
+      <p class="page-sub">Create group sessions, topics, and shared study links.</p>
+    </section>
+    <section class="feature-grid two-col">
+      <form class="feature-panel" id="group-form">
+        <label>Group name<input id="group-name" class="task-input" type="text" required></label>
+        <label>Topic<input id="group-topic" class="task-input" type="text" required></label>
+        <label>Meeting time<input id="group-time" class="task-input" type="datetime-local" required></label>
+        <label>Shared link<input id="group-link" class="task-input" type="url" placeholder="https://"></label>
+        <button class="btn-primary" type="submit">Create Group Session</button>
+      </form>
+      <section class="feature-panel">
+        <div class="feature-list" id="group-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/features.js"></script>
+</body>
+</html>

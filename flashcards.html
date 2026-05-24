@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flashcards - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="notes.html">Notes</a></li>
+      <li><a href="flashcards.html" class="active">Flashcards</a></li>
+      <li><a href="grades.html">Grades</a></li>
+      <li><a href="timer.html">Timer</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='notes.html'">Notes</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header">
+      <p class="arcade-kicker">Active Recall</p>
+      <h1>Flashcards</h1>
+      <p class="page-sub">Create cards and review them with easy/hard scheduling.</p>
+    </section>
+    <section class="feature-grid two-col">
+      <form class="feature-panel" id="flashcard-form">
+        <label>Subject<input id="flash-subject" class="task-input" type="text" required></label>
+        <label>Question<textarea id="flash-question" class="task-input" rows="4" required></textarea></label>
+        <label>Answer<textarea id="flash-answer" class="task-input" rows="4" required></textarea></label>
+        <button class="btn-primary" type="submit">Add Card</button>
+      </form>
+      <section class="feature-panel">
+        <div id="flash-review"></div>
+        <div class="feature-list" id="flash-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/features.js"></script>
+</body>
+</html>
