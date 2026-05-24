@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="planner.html">Planner</a></li>
+      <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="timer.html">Timer</a></li>
+      <li><a href="game.html">Game</a></li>
+      <li><a href="admin.html" class="active">Admin</a></li>
+    </ul>
+    <button class="btn-nav" id="admin-logout-btn">Logout</button>
+  </nav>
+
+  <main class="page-wrapper admin-page">
+    <section class="page-header">
+      <p class="arcade-kicker">Admin Access</p>
+      <h1>StudySphere Admin Dashboard</h1>
+      <p class="page-sub">Local analytics for consented student activity on this browser.</p>
+    </section>
+
+    <section class="stats-grid admin-stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Logins</div>
+        <div class="stat-val" id="admin-total-logins">0</div>
+        <div class="stat-sub">local events</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Student Emails</div>
+        <div class="stat-val" id="admin-total-users">0</div>
+        <div class="stat-sub">registered here</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active User</div>
+        <div class="stat-val" id="admin-active-user">0</div>
+        <div class="stat-sub">current session</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Consent Rate</div>
+        <div class="stat-val" id="admin-consent-rate">0%</div>
+        <div class="stat-sub">students</div>
+      </div>
+    </section>
+
+    <section class="student-hub-grid">
+      <div class="hub-panel">
+        <h2 class="section-title">Logged Emails</h2>
+        <div class="admin-list" id="admin-user-list"></div>
+      </div>
+      <div class="hub-panel">
+        <h2 class="section-title">Recent Login Events</h2>
+        <div class="admin-list" id="admin-login-list"></div>
+      </div>
+      <div class="hub-panel wide-panel">
+        <h2 class="section-title">App Data Overview</h2>
+        <div class="analytics-grid" id="admin-data-grid"></div>
+      </div>
+      <div class="hub-panel wide-panel">
+        <h2 class="section-title">Local Data Snapshot</h2>
+        <pre class="admin-snapshot" id="admin-snapshot"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

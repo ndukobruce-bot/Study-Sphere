@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="auth-page">
+    <section class="auth-brand">
+      <div class="nav-logo">Study<span>Sphere</span></div>
+      <h1>University study starts here.</h1>
+      <p>Log in to keep your tasks, planner, timer, revision, exams, and Sage guide connected to your student profile.</p>
+      <div class="auth-points">
+        <span>Student dashboard</span>
+        <span>Consent-first analytics</span>
+        <span>Admin access separated</span>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <div class="auth-tabs">
+        <button class="active" type="button" data-auth-tab="student">Student Login</button>
+        <button type="button" data-auth-tab="admin">Admin Login</button>
+      </div>
+
+      <form id="student-login-form" class="auth-form">
+        <label>
+          University email
+          <input id="student-email" type="email" placeholder="student@university.edu" required>
+        </label>
+        <label>
+          Full name
+          <input id="student-name" type="text" placeholder="Your name" required>
+        </label>
+        <div class="auth-form-grid">
+          <label>
+            University
+            <input id="student-university" type="text" placeholder="University name" required>
+          </label>
+          <label>
+            Course / year
+            <input id="student-course" type="text" placeholder="Computer Science, Year 2" required>
+          </label>
+        </div>
+        <label>
+          Password
+          <input id="student-password" type="password" placeholder="Create or enter password" required>
+        </label>
+        <label class="consent-box">
+          <input id="student-consent" type="checkbox" required>
+          <span>I consent to StudySphere storing my email, profile, login activity, and app activity locally so the dashboard and admin analytics can work.</span>
+        </label>
+        <button class="btn-primary" type="submit">Enter StudySphere</button>
+        <p class="auth-note">New student emails are registered automatically in this local version.</p>
+      </form>
+
+      <form id="admin-login-form" class="auth-form" style="display:none;">
+        <label>
+          Admin email
+          <input id="admin-email" type="email" placeholder="admin@email.com" required>
+        </label>
+        <label>
+          Admin password
+          <input id="admin-password" type="password" placeholder="Admin password" required>
+        </label>
+        <label class="consent-box">
+          <input id="admin-consent" type="checkbox" required>
+          <span>I understand this admin area shows locally stored student emails, login events, active session data, and app activity.</span>
+        </label>
+        <button class="btn-primary" type="submit">Open Admin Access</button>
+      </form>
+
+      <p class="auth-error" id="auth-error"></p>
+      <a href="index.html" class="auth-home-link">Back to home</a>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

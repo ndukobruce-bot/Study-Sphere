@@ -55,6 +55,43 @@ if (streakEl) {
   streakEl.textContent = window.currentStreak;
 }
 
+function updateAuthNav() {
+  const navLinks = document.querySelector(".nav-links");
+  if (!navLinks) return;
+
+  const currentUser = JSON.parse(localStorage.getItem("ss_current_user") || "null");
+  const existing = document.getElementById("auth-nav-item");
+  if (existing) existing.remove();
+
+  const item = document.createElement("li");
+  item.id = "auth-nav-item";
+
+  if (!currentUser) {
+    item.innerHTML = `<a href="login.html">Login</a>`;
+  } else if (currentUser.role === "admin") {
+    item.innerHTML = `<a href="admin.html">Admin</a>`;
+  } else {
+    item.innerHTML = `<a href="#" id="logout-link">Logout</a>`;
+  }
+
+  navLinks.appendChild(item);
+
+  const logoutLink = document.getElementById("logout-link");
+  if (logoutLink) {
+    logoutLink.onclick = function(event) {
+      event.preventDefault();
+      if (typeof logoutUser === "function") {
+        logoutUser();
+      } else {
+        localStorage.removeItem("ss_current_user");
+        window.location.href = "login.html";
+      }
+    };
+  }
+}
+
+updateAuthNav();
+
 // ---- STUDYSPHERE GUIDE ASSISTANT ----
 const assistantPages = {
   dashboard: {
