@@ -254,6 +254,10 @@ function getAssistantReply(message) {
     return getNextStepAdvice(context);
   }
 
+  if (matches(text, ["premium", "upgrade", "paid", "price", "billing"])) {
+    return "StudySphere Premium is $1.99/month. It unlocks unlimited plans, notes, flashcards, files, groups, grade insights, and stronger Sage guidance.\n\nOpen: [Premium](premium.html)";
+  }
+
   if (matches(text, ["where", "find", "located", "go to"])) {
     return "Here is the map: Dashboard = overview and alerts, Planner = generated schedules and online notes, Tasks = assignments and due dates, Timer = Pomodoro focus, Games = break activities.";
   }
