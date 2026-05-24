@@ -1,72 +1,72 @@
-# 📚 StudySphere — Smart Student Hub
+# StudySphere
 
-A modern, dark-themed student productivity web app built with HTML, CSS, and Vanilla JavaScript.
+StudySphere is a student productivity hub with tasks, planner, timer, notes, flashcards, grades, files, groups, games, Sage assistant, local auth, admin tools, and Premium gating.
 
-## 🚀 Features
+## Run Static Version
 
-- **Homepage** — Clean landing page with hero section and feature highlights
-- **Task Manager** — Add, complete, delete tasks with priority levels (Low / Medium / High)
-- **Pomodoro Timer** — 25-min study / 5-min break / 15-min long break with visual ring
-- **Dashboard** — Live stats: tasks completed, pomodoros done, study time, streak
-- **LocalStorage** — All data persists between sessions, no backend required
+Open `index.html` in a browser, or serve the folder with any static server.
 
-## 📁 Project Structure
+## Run With Stripe Backend
 
-studysphere/
-├── index.html
-├── dashboard.html
-├── tasks.html
-├── timer.html
-├── css/
-│   └── style.css
-├── js/
-│   ├── app.js
-│   ├── tasks.js
-│   ├── timer.js
-│   └── dashboard.js
-├── assets/
-│   └── images/
-└── README.md
+1. Install dependencies:
 
-## 🎨 Design
+```bash
+npm install
+```
 
-- **Theme:** Dark (black/deep gray background)
-- **Accents:** Neon cyan and purple
-- **Fonts:** Syne (headings) + DM Sans (body)
-- **Fully responsive** — works on mobile and desktop
+2. Copy environment settings:
 
-## 🛠 Tech Stack
+```bash
+copy .env.example .env
+```
 
-- HTML5
-- CSS3 (Flexbox + Grid, CSS Variables)
-- Vanilla JavaScript (ES6+)
-- LocalStorage API
-- Web Audio API (for timer beep)
+3. In Stripe Dashboard, create a recurring monthly price for **$1.99 USD** and put its price id in `.env` as `STRIPE_PRICE_ID`.
 
-## ⚙️ How to Run Locally
+4. Add your test secret key:
 
-1. Clone or download this repo
-2. Open index.html in your browser
-3. No build tools or installs needed!
+```env
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PRICE_ID=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+APP_URL=http://localhost:4242
+```
 
-## 🌐 Deploy to GitHub Pages
+5. Start the app:
 
-1. Push to GitHub
-2. Go to repo Settings → Pages
-3. Set source to main branch
-4. Your site is live at: https://yourusername.github.io/studysphere/
+```bash
+npm start
+```
 
-## 🔮 Future Features
+6. Open:
 
-- User authentication
-- MongoDB / Firebase database
-- Notes section
-- AI study assistant
-- Leaderboard / gamification
-- Push notifications
+```text
+http://localhost:4242
+```
 
-## 👨‍💻 Author
+## Stripe Webhook
 
-Built as part of my Computer Science learning journey.
+For local testing, use the Stripe CLI:
 
-StudySphere — Study Smarter. Not Harder.
+```bash
+stripe listen --forward-to localhost:4242/api/stripe-webhook
+```
+
+Copy the `whsec_...` value into `.env` as `STRIPE_WEBHOOK_SECRET`.
+
+For production, create a webhook endpoint in Stripe pointing to your deployed backend:
+
+```text
+https://your-domain.com/api/stripe-webhook
+```
+
+The backend listens for:
+
+- `checkout.session.completed`
+- `customer.subscription.deleted`
+
+## Important Security Notes
+
+- Do not commit `.env`.
+- Stripe secret keys must stay on the server.
+- The current student login is still local/demo auth. Production accounts should move to a real backend database and password hashing.
+- Server-side Premium status is stored in `data/premium-users.json` for now. A production app should use a real database.

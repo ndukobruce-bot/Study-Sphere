@@ -54,6 +54,13 @@ function initBilling() {
   if (!statusEl) return;
 
   renderBillingStatus();
+  syncPremiumFromServer();
+
+  const stripeBtn = document.getElementById("stripe-checkout-btn");
+  if (stripeBtn) {
+    stripeBtn.onclick = startStripeCheckout;
+  }
+
   document.getElementById("simulate-upgrade-btn").onclick = function() {
     if (!document.getElementById("billing-consent").checked) {
       statusEl.textContent = "Please confirm the simulated checkout notice first.";
@@ -84,6 +91,55 @@ function initBilling() {
   };
 }
 
+async function startStripeCheckout() {
+  const statusEl = document.getElementById("billing-status");
+  const user = premiumUser();
+
+  if (!user || !user.email) {
+    statusEl.textContent = "Please log in as a student before upgrading.";
+    return;
+  }
+
+  if (!document.getElementById("billing-consent").checked) {
+    statusEl.textContent = "Please confirm the billing notice first.";
+    return;
+  }
+
+  try {
+    statusEl.textContent = "Creating secure Stripe Checkout session...";
+    const response = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user.email })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Could not start checkout.");
+    window.location.href = data.url;
+  } catch (error) {
+    statusEl.innerHTML = `<strong>Stripe checkout unavailable</strong><span>${error.message}</span>`;
+  }
+}
+
+async function syncPremiumFromServer() {
+  const user = premiumUser();
+  if (!user || !user.email) return;
+
+  try {
+    const response = await fetch("/api/premium-status?email=" + encodeURIComponent(user.email));
+    if (!response.ok) return;
+    const status = await response.json();
+    if (status && status.plan === "premium") {
+      setPremiumStatus({
+        ...status,
+        paymentStatus: status.paymentStatus || "server_verified"
+      });
+      renderBillingStatus();
+    }
+  } catch (error) {
+    // Static hosting will not have the backend API. Keep local/demo status.
+  }
+}
+
 function renderBillingStatus() {
   const statusEl = document.getElementById("billing-status");
   if (!statusEl) return;
@@ -105,4 +161,5 @@ function renderPremiumBadges() {
 }
 
 initBilling();
+syncPremiumFromServer();
 renderPremiumBadges();
