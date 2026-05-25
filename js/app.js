@@ -60,6 +60,27 @@ function updateAuthNav() {
   if (!navLinks) return;
 
   const currentUser = JSON.parse(localStorage.getItem("ss_current_user") || "null");
+  const landingAction = document.getElementById("landing-nav-action");
+  if (landingAction) {
+    if (!currentUser) {
+      landingAction.textContent = "Student Login";
+      landingAction.onclick = function() {
+        window.location.href = "login.html";
+      };
+    } else if (currentUser.role === "admin") {
+      landingAction.textContent = "Admin Panel";
+      landingAction.onclick = function() {
+        window.location.href = "admin.html";
+      };
+    } else {
+      landingAction.textContent = "Open Dashboard";
+      landingAction.onclick = function() {
+        window.location.href = "dashboard.html";
+      };
+    }
+    return;
+  }
+
   const existing = document.getElementById("auth-nav-item");
   if (existing) existing.remove();
 

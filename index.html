@@ -3,101 +3,132 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StudySphere – Smart Student Hub</title>
+  <title>StudySphere - Smart Student Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-
-  <!-- NAV -->
-  <nav class="navbar">
-    <div class="nav-logo">Study<span>Sphere</span></div>
+<body class="landing-body">
+  <nav class="navbar landing-nav">
+    <a class="nav-logo" href="index.html" aria-label="StudySphere home">Study<span>Sphere</span></a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html" class="active">Home</a></li>
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="planner.html">Planner</a></li>
-      <li><a href="tasks.html">Tasks</a></li>
-      <li><a href="timer.html">Timer</a></li>
-      <li><a href="game.html">Game</a></li>
+      <li><a href="notes.html">Notes</a></li>
+      <li><a href="game.html">Games</a></li>
+      <li><a href="premium.html">Premium</a></li>
     </ul>
-    <button class="btn-nav" onclick="window.location.href='login.html'">Get Started</button>
+    <button class="btn-nav" id="landing-nav-action" onclick="window.location.href='login.html'">Student Login</button>
   </nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-glow"></div>
-    <div class="hero-content">
-      <div class="hero-badge">🎓 Built for Students, By a Student</div>
-      <h1>Study Smarter.<br><span class="accent">Not Harder.</span></h1>
-      <p class="hero-sub">StudySphere brings your tasks, timer, and progress tracking together — so you can focus on what actually matters: learning.</p>
-      <div class="hero-btns">
-        <a href="login.html" class="btn-primary">Student Login →</a>
-        <a href="tasks.html" class="btn-outline">View My Tasks</a>
-      </div>
-    </div>
-    <div class="hero-cards">
-      <div class="float-card fc1">
-        <div class="fc-icon">⏱</div>
-        <div class="fc-label">Pomodoro Timer</div>
-        <div class="fc-val">25:00</div>
-      </div>
-      <div class="float-card fc2">
-        <div class="fc-icon">✅</div>
-        <div class="fc-label">Tasks Today</div>
-        <div class="fc-val">6 / 8</div>
-      </div>
-      <div class="float-card fc3">
-        <div class="fc-icon">🔥</div>
-        <div class="fc-label">Study Streak</div>
-        <div class="fc-val">5 days</div>
-      </div>
-    </div>
-  </section>
+  <main class="landing-main">
+    <section class="orbital-hero" aria-label="StudySphere overview">
+      <canvas id="study-globe-canvas" class="study-globe-canvas" aria-hidden="true"></canvas>
+      <div class="orbital-vignette" aria-hidden="true"></div>
 
-  <!-- FEATURES -->
-  <section class="features">
-    <h2>Everything You Need to Succeed</h2>
-    <p class="section-sub">One platform. All your study tools. Zero distractions.</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feat-icon">📋</div>
-        <h3>Task Manager</h3>
-        <p>Add, complete, and delete your daily study tasks. Stay on top of what matters most.</p>
+      <div class="orbital-copy">
+        <p class="landing-kicker">A living command center for university students</p>
+        <h1>StudySphere</h1>
+        <p class="landing-subtitle">Plan the week, track assignments, focus deeply, revise smarter, and ask Sage for direction when study life gets messy.</p>
+        <div class="hero-btns">
+          <a href="login.html" class="btn-primary">Enter StudySphere</a>
+          <a href="dashboard.html" class="btn-outline">View Dashboard</a>
+        </div>
+        <div class="landing-metrics" aria-label="StudySphere highlights">
+          <span><strong>5</strong> brain-break games</span>
+          <span><strong>KES 250</strong> Premium</span>
+          <span><strong>Sage</strong> study guide</span>
+        </div>
       </div>
-      <div class="feature-card">
-        <div class="feat-icon">⏱</div>
-        <h3>Pomodoro Timer</h3>
-        <p>25-minute focused study sessions followed by 5-minute breaks. Science-backed productivity.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feat-icon">📊</div>
-        <h3>Progress Dashboard</h3>
-        <p>Track your daily study stats and see your improvement over time. Build consistency.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feat-icon">🌙</div>
-        <h3>Dark Mode UI</h3>
-        <p>Easy on the eyes. Built dark by design so you can study for hours without strain.</p>
-      </div>
-    </div>
-  </section>
 
-  <!-- CTA -->
-  <section class="cta-section">
-    <h2>Ready to level up your studies?</h2>
-    <p>Join StudySphere and start building better study habits today.</p>
-    <a href="dashboard.html" class="btn-primary">Go to Dashboard →</a>
-  </section>
+      <div class="orbit-stage" aria-label="StudySphere sections">
+        <a href="dashboard.html" class="orbit-node" data-orbit-node data-lat="18" data-angle="0.1">
+          <strong>Dashboard</strong>
+          <span>Signals, alerts, exams</span>
+        </a>
+        <a href="planner.html" class="orbit-node" data-orbit-node data-lat="-20" data-angle="0.9">
+          <strong>Planner</strong>
+          <span>Schedules from goals</span>
+        </a>
+        <a href="tasks.html" class="orbit-node" data-orbit-node data-lat="38" data-angle="1.8">
+          <strong>Tasks</strong>
+          <span>Priorities and deadlines</span>
+        </a>
+        <a href="timer.html" class="orbit-node" data-orbit-node data-lat="-42" data-angle="2.7">
+          <strong>Focus</strong>
+          <span>Pomodoro sessions</span>
+        </a>
+        <a href="notes.html" class="orbit-node" data-orbit-node data-lat="4" data-angle="3.6">
+          <strong>Notes</strong>
+          <span>Online resources</span>
+        </a>
+        <a href="game.html" class="orbit-node" data-orbit-node data-lat="31" data-angle="4.5">
+          <strong>Games</strong>
+          <span>Tic Tac Toe and more</span>
+        </a>
+        <a href="premium.html" class="orbit-node" data-orbit-node data-lat="-8" data-angle="5.3">
+          <strong>Premium</strong>
+          <span>Unlimited toolkit</span>
+        </a>
+      </div>
+    </section>
 
-  <!-- FOOTER -->
-  <footer class="footer">
+    <section class="landing-tool-strip" aria-label="Core student tools">
+      <a href="planner.html"><strong>Plan</strong><span>Turn a goal into a full schedule.</span></a>
+      <a href="timer.html"><strong>Focus</strong><span>Work in clean, trackable sessions.</span></a>
+      <a href="notes.html"><strong>Collect</strong><span>Save notes and find online resources.</span></a>
+      <a href="game.html"><strong>Reset</strong><span>Take short, useful brain breaks.</span></a>
+    </section>
+
+    <section class="landing-showcase">
+      <div class="showcase-copy">
+        <p class="landing-kicker">Built around real student pressure</p>
+        <h2>One place for the chaos before it becomes stress.</h2>
+        <p>Assignments, revision, files, grades, groups, exams, and payments all stay connected. StudySphere keeps the student moving instead of forcing them to hunt around for the next step.</p>
+        <div class="showcase-actions">
+          <a href="planner.html" class="btn-primary">Build a Plan</a>
+          <a href="login.html" class="btn-outline">Create Student Access</a>
+        </div>
+      </div>
+
+      <div class="command-preview" aria-label="StudySphere interface preview">
+        <div class="preview-topline">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="preview-grid">
+          <div class="preview-panel wide">
+            <small>Today</small>
+            <strong>Calculus revision</strong>
+            <div class="preview-progress"><span style="width: 72%"></span></div>
+          </div>
+          <div class="preview-panel accent-blue">
+            <small>Focus</small>
+            <strong>25:00</strong>
+          </div>
+          <div class="preview-panel accent-green">
+            <small>Done</small>
+            <strong>6 tasks</strong>
+          </div>
+          <div class="preview-panel accent-amber wide">
+            <small>Sage</small>
+            <strong>Start with your highest priority deadline, then revise for 35 minutes.</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer landing-footer">
     <div class="footer-logo">Study<span>Sphere</span></div>
-    <p>Built with 💙 for students everywhere.</p>
-    <p class="footer-small">© 2025 StudySphere. All rights reserved.</p>
+    <p>Built for students who want structure without losing momentum.</p>
+    <p class="footer-small">2026 StudySphere. All rights reserved.</p>
   </footer>
 
   <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/landing.js"></script>
 </body>
 </html>
