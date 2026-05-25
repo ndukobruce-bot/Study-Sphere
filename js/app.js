@@ -255,7 +255,7 @@ function getAssistantReply(message) {
   }
 
   if (matches(text, ["premium", "upgrade", "paid", "price", "billing"])) {
-    return "StudySphere Premium is $1.99/month. It unlocks unlimited plans, notes, flashcards, files, groups, grade insights, and stronger Sage guidance.\n\nOpen: [Premium](premium.html)";
+    return "StudySphere Premium is KES 250/month. It unlocks unlimited plans, notes, flashcards, files, groups, grade insights, and stronger Sage guidance.\n\nOpen: [Premium](premium.html)";
   }
 
   if (matches(text, ["where", "find", "located", "go to"])) {

@@ -42,7 +42,7 @@ function showUpgradePrompt(featureName) {
   prompt.className = "premium-lock";
   prompt.innerHTML = `
     <strong>${featureName} is a Premium feature</strong>
-    <span>Upgrade to StudySphere Premium for $1.99/month to unlock this and more.</span>
+    <span>Upgrade to StudySphere Premium for KES 250/month to unlock this and more.</span>
     <a class="btn-primary" href="premium.html">View Premium</a>
   `;
   document.body.appendChild(prompt);
@@ -56,9 +56,9 @@ function initBilling() {
   renderBillingStatus();
   syncPremiumFromServer();
 
-  const stripeBtn = document.getElementById("stripe-checkout-btn");
-  if (stripeBtn) {
-    stripeBtn.onclick = startStripeCheckout;
+  const pesapalBtn = document.getElementById("pesapal-checkout-btn");
+  if (pesapalBtn) {
+    pesapalBtn.onclick = startPesapalCheckout;
   }
 
   document.getElementById("simulate-upgrade-btn").onclick = function() {
@@ -72,8 +72,8 @@ function initBilling() {
     expires.setMonth(expires.getMonth() + 1);
     setPremiumStatus({
       plan: "premium",
-      price: 1.99,
-      currency: "USD",
+      price: 250,
+      currency: "KES",
       paymentStatus: "simulated_paid",
       premiumStartedAt: now.toISOString(),
       premiumExpiresAt: expires.toISOString()
@@ -91,7 +91,7 @@ function initBilling() {
   };
 }
 
-async function startStripeCheckout() {
+async function startPesapalCheckout() {
   const statusEl = document.getElementById("billing-status");
   const user = premiumUser();
 
@@ -106,17 +106,17 @@ async function startStripeCheckout() {
   }
 
   try {
-    statusEl.textContent = "Creating secure Stripe Checkout session...";
-    const response = await fetch("/api/create-checkout-session", {
+    statusEl.textContent = "Creating secure Pesapal checkout...";
+    const response = await fetch("/api/create-pesapal-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user.email })
+      body: JSON.stringify({ email: user.email, name: user.name || "StudySphere Student" })
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Could not start checkout.");
     window.location.href = data.url;
   } catch (error) {
-    statusEl.innerHTML = `<strong>Stripe checkout unavailable</strong><span>${error.message}</span>`;
+    statusEl.innerHTML = `<strong>Pesapal checkout unavailable</strong><span>${error.message}</span>`;
   }
 }
 
