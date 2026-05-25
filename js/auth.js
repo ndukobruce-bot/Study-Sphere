@@ -19,7 +19,10 @@ function setCurrentUser(user) {
 
 function logoutUser() {
   const user = getCurrentUser();
-  if (user) recordLoginEvent(user.email, user.role, "logout");
+  if (user) {
+    recordLoginEvent(user.email, user.role, "logout");
+    syncAuthToServer(user, "logout");
+  }
   localStorage.removeItem("ss_current_user");
   window.location.href = "login.html";
 }
@@ -34,6 +37,33 @@ function recordLoginEvent(email, role, type) {
     consented: true
   });
   authSave("ss_login_events", events.slice(-100));
+}
+
+function syncAuthToServer(profile, type) {
+  if (!profile || !profile.email || typeof fetch !== "function") return;
+  const snapshot = {
+    tasks: authLoad("ss_tasks", []).length,
+    plans: authLoad("ss_plans", []).length,
+    notes: authLoad("ss_notes", []).length,
+    flashcards: authLoad("ss_flashcards", []).length,
+    grades: authLoad("ss_grades", []).length,
+    exams: authLoad("ss_exams", []).length
+  };
+
+  fetch("/api/db/sync", {
+    method: "POST",
+    keepalive: true,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: profile.email,
+      profile: profile,
+      consented: Boolean(profile.consented),
+      appSnapshot: snapshot,
+      activity: { type: type, role: profile.role || "student" }
+    })
+  }).catch(function() {
+    // Static hosting keeps localStorage as the fallback data layer.
+  });
 }
 
 function upsertStudent(profile) {
@@ -112,6 +142,7 @@ function initLoginPage() {
       loginAt: new Date().toISOString()
     });
     recordLoginEvent(profile.email, "student", "login");
+    syncAuthToServer(profile, "login");
     window.location.href = "dashboard.html";
   });
 
@@ -139,6 +170,7 @@ function initLoginPage() {
       loginAt: new Date().toISOString()
     });
     recordLoginEvent(ADMIN_EMAIL, "admin", "login");
+    syncAuthToServer({ email: ADMIN_EMAIL, name: "Nduko Bruce", role: "admin", consented: true }, "login");
     window.location.href = "admin.html";
   });
 }
@@ -197,6 +229,7 @@ function initAdminPage() {
   renderAdminDataGrid(data);
   renderAdminSnapshot(data);
   initAdminActions(data);
+  renderBackendAdminOverview();
 
   const logout = document.getElementById("admin-logout-btn");
   if (logout) logout.onclick = logoutUser;
@@ -292,6 +325,29 @@ function initAdminActions(data) {
       input.value = "";
     };
   }
+}
+
+function renderBackendAdminOverview() {
+  const grid = document.getElementById("admin-backend-grid");
+  if (!grid || typeof fetch !== "function") return;
+
+  fetch("/api/db/admin/overview")
+    .then(response => response.ok ? response.json() : null)
+    .then(data => {
+      if (!data) {
+        grid.innerHTML = `<p class="empty-panel">Backend database is not available in static mode.</p>`;
+        return;
+      }
+      grid.innerHTML = `
+        <div class="analytics-card"><span>Server Students</span><strong>${data.totals.students}</strong></div>
+        <div class="analytics-card"><span>Server Activity</span><strong>${data.totals.activityEvents}</strong></div>
+        <div class="analytics-card"><span>Premium Users</span><strong>${data.totals.premiumUsers}</strong></div>
+        <div class="analytics-card"><span>Payment Orders</span><strong>${data.totals.paymentOrders}</strong></div>
+      `;
+    })
+    .catch(function() {
+      grid.innerHTML = `<p class="empty-panel">Backend database is not available in static mode.</p>`;
+    });
 }
 
 function setAdminText(id, value) {

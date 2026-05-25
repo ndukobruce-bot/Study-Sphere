@@ -287,7 +287,10 @@ function initGroups() {
       name: document.getElementById("group-name").value.trim(),
       topic: document.getElementById("group-topic").value.trim(),
       time: document.getElementById("group-time").value,
-      link: document.getElementById("group-link").value.trim()
+      members: document.getElementById("group-members") ? document.getElementById("group-members").value.trim() : "",
+      goal: document.getElementById("group-goal") ? document.getElementById("group-goal").value.trim() : "",
+      link: document.getElementById("group-link").value.trim(),
+      notes: document.getElementById("group-notes") ? document.getElementById("group-notes").value.trim() : ""
     });
     featureSave("ss_groups", groups);
     form.reset();
@@ -302,7 +305,13 @@ function renderGroups() {
   const groups = featureLoad("ss_groups");
   list.innerHTML = groups.length ? "" : `<p class="empty-panel">No group sessions yet.</p>`;
   groups.slice().reverse().forEach(group => {
-    const card = featureCard(group.name, group.topic, new Date(group.time).toLocaleString());
+    const details = [
+      new Date(group.time).toLocaleString(),
+      group.members ? "Members: " + group.members : "",
+      group.goal ? "Goal: " + group.goal : "",
+      group.notes ? "Notes: " + group.notes : ""
+    ].filter(Boolean).join("\n");
+    const card = featureCard(group.name, group.topic, details);
     if (group.link) card.innerHTML += `<a href="${escapeFeature(group.link)}" target="_blank" rel="noopener">Open shared link</a>`;
     list.appendChild(card);
   });

@@ -1,0 +1,19 @@
+{
+  "name": "StudySphere",
+  "short_name": "StudySphere",
+  "description": "A smart student hub for planning, focus, revision, reminders, reports, and study tools.",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070711",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/images/studysphere-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

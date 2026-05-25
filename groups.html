@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Groups - StudySphere</title>
+  <title>Study Rooms - StudySphere</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
@@ -13,27 +13,31 @@
     <div class="nav-logo">Study<span>Sphere</span></div>
     <ul class="nav-links">
       <li><a href="dashboard.html">Dashboard</a></li>
-      <li><a href="groups.html" class="active">Groups</a></li>
+      <li><a href="groups.html" class="active">Study Rooms</a></li>
       <li><a href="calendar.html">Calendar</a></li>
       <li><a href="notes.html">Notes</a></li>
       <li><a href="files.html">Files</a></li>
+      <li><a href="report.html">Report</a></li>
     </ul>
     <button class="btn-nav" onclick="window.location.href='calendar.html'">Calendar</button>
   </nav>
 
   <main class="page-wrapper feature-page">
     <section class="page-header">
-      <p class="arcade-kicker">Study Groups</p>
-      <h1>Coordinate with classmates</h1>
-      <p class="page-sub">Create group sessions, topics, and shared study links.</p>
+      <p class="arcade-kicker">Study Rooms</p>
+      <h1>Coordinate with classmates in one place.</h1>
+      <p class="page-sub">Create shared study rooms with members, goals, meeting links, notes, and session tasks.</p>
     </section>
     <section class="feature-grid two-col">
       <form class="feature-panel" id="group-form">
-        <label>Group name<input id="group-name" class="task-input" type="text" required></label>
+        <label>Room name<input id="group-name" class="task-input" type="text" required></label>
         <label>Topic<input id="group-topic" class="task-input" type="text" required></label>
         <label>Meeting time<input id="group-time" class="task-input" type="datetime-local" required></label>
+        <label>Members<input id="group-members" class="task-input" type="text" placeholder="Amina, Brian, Chen"></label>
+        <label>Session goal<textarea id="group-goal" class="task-input" rows="3" placeholder="Finish past paper questions 1-5 and compare answers."></textarea></label>
         <label>Shared link<input id="group-link" class="task-input" type="url" placeholder="https://"></label>
-        <button class="btn-primary" type="submit">Create Group Session</button>
+        <label>Shared notes<textarea id="group-notes" class="task-input" rows="4" placeholder="Agenda, questions, resources, decisions"></textarea></label>
+        <button class="btn-primary" type="submit">Create Study Room</button>
       </form>
       <section class="feature-panel">
         <div class="feature-list" id="group-list"></div>

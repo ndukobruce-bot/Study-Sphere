@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="StudySphere icon">
+  <rect width="512" height="512" rx="96" fill="#070711"/>
+  <circle cx="256" cy="256" r="176" fill="#171425" stroke="#7c3aed" stroke-width="18"/>
+  <path d="M92 256c54-42 111-63 171-63 59 0 112 21 157 63-45 42-98 63-157 63-60 0-117-21-171-63Z" fill="none" stroke="#22d3ee" stroke-width="16"/>
+  <path d="M256 82c36 48 54 106 54 174s-18 126-54 174c-36-48-54-106-54-174s18-126 54-174Z" fill="none" stroke="#10b981" stroke-width="16"/>
+  <circle cx="256" cy="256" r="42" fill="#a855f7"/>
+  <path d="M211 258h90M256 213v90" stroke="#fff" stroke-width="22" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exam Mode - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="exam-mode.html" class="active">Exam Mode</a></li>
+      <li><a href="autopilot.html">Autopilot</a></li>
+      <li><a href="reminders.html">Reminders</a></li>
+      <li><a href="summarizer.html">Summarizer</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='timer.html'">Start Sprint</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header smart-hero">
+      <p class="arcade-kicker">Exam Mode</p>
+      <h1>Switch from general study to revision attack.</h1>
+      <p class="page-sub">Create a daily exam sprint from topics, weak areas, confidence, and countdown.</p>
+    </section>
+
+    <section class="feature-grid two-col">
+      <form class="feature-panel smart-form" id="exam-mode-form">
+        <label>Choose saved exam<select id="exam-mode-select" class="task-input"></select></label>
+        <div class="smart-two">
+          <label>Manual exam name<input id="exam-mode-name" class="task-input" type="text"></label>
+          <label>Manual exam date<input id="exam-mode-date" class="task-input" type="date"></label>
+        </div>
+        <label>Topics<textarea id="exam-mode-topics" class="task-input" rows="4" placeholder="Limits, derivatives, integration, optimization"></textarea></label>
+        <label>Weak areas<textarea id="exam-mode-weak" class="task-input" rows="3" placeholder="Integration, word problems"></textarea></label>
+        <label>Confidence level<input id="exam-confidence" class="task-input" type="range" min="10" max="100" value="55"></label>
+        <button class="btn-primary" type="submit">Generate Exam Sprint</button>
+        <button class="btn-outline" id="save-exam-sprint" type="button">Save Sprint to Tasks</button>
+        <p class="form-status" id="exam-mode-status"></p>
+      </form>
+
+      <section class="feature-panel smart-output-panel">
+        <h2 class="section-title">Today’s Sprint</h2>
+        <div id="exam-mode-output">
+          <p class="empty-panel">Generate a sprint to see the revision blocks and mock questions.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/smart-tools.js"></script>
+</body>
+</html>

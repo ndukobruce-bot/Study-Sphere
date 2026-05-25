@@ -125,6 +125,36 @@ const assistantPages = {
     href: "planner.html",
     summary: "Creates a day-by-day schedule from your goal, deadline, time, subject, and energy level."
   },
+  onboarding: {
+    label: "Student Setup",
+    href: "onboarding.html",
+    summary: "Stores your course, subjects, weak areas, exam dates, available study days, and semester goal."
+  },
+  autopilot: {
+    label: "Study Autopilot",
+    href: "autopilot.html",
+    summary: "Turns a goal, deadline, weak areas, and available minutes into a full study schedule."
+  },
+  reminders: {
+    label: "Reminders",
+    href: "reminders.html",
+    summary: "Watches tasks, exams, plans, custom reminders, and billing dates."
+  },
+  summarizer: {
+    label: "Summarizer",
+    href: "summarizer.html",
+    summary: "Turns pasted notes into summaries, key terms, checklists, quiz questions, and flashcards."
+  },
+  exam: {
+    label: "Exam Mode",
+    href: "exam-mode.html",
+    summary: "Creates daily revision sprints and mock questions for upcoming exams."
+  },
+  report: {
+    label: "Weekly Report",
+    href: "report.html",
+    summary: "Combines tasks, focus sessions, plans, notes, flashcards, and grades into progress advice."
+  },
   tasks: {
     label: "Tasks",
     href: "tasks.html",
@@ -165,9 +195,9 @@ function createAssistant() {
       </div>
       <div class="assistant-messages" id="assistant-messages"></div>
       <div class="assistant-suggestions">
-        <button type="button" data-prompt="Where is the planner?">Planner</button>
+        <button type="button" data-prompt="Where is Autopilot?">Autopilot</button>
         <button type="button" data-prompt="What should I do next?">Next step</button>
-        <button type="button" data-prompt="Where can I find notes online?">Notes</button>
+        <button type="button" data-prompt="I have exams soon">Exam</button>
       </div>
       <form class="assistant-form" id="assistant-form">
         <input id="assistant-input" type="text" placeholder="Ask Sage..." autocomplete="off">
@@ -247,6 +277,22 @@ function getAssistantReply(message) {
     return pageReply("planner", "Use the Planner when you know what you want to achieve but need a realistic schedule.");
   }
 
+  if (matches(text, ["setup", "onboard", "profile", "personalize", "course", "semester"])) {
+    return pageReply("onboarding", "Start with Student Setup so StudySphere knows your academic situation.");
+  }
+
+  if (matches(text, ["autopilot", "automatic", "run my week", "full schedule", "weekly plan"])) {
+    return pageReply("autopilot", "Use Study Autopilot when you want the app to create the full weekly structure for you.");
+  }
+
+  if (matches(text, ["reminder", "reminders", "notify", "notification", "alert"])) {
+    return pageReply("reminders", "Use Reminders to see what is due, what is overdue, and what needs attention soon.");
+  }
+
+  if (matches(text, ["summarize", "summary", "summarizer", "quiz", "flashcard from notes"])) {
+    return pageReply("summarizer", "Use the Summarizer when you have raw notes and need revision material quickly.");
+  }
+
   if (matches(text, ["task", "assignment", "homework", "due", "priority"])) {
     return pageReply("tasks", "Use Tasks to capture work, add due dates, choose a subject, and set priority.");
   }
@@ -264,7 +310,7 @@ function getAssistantReply(message) {
   }
 
   if (matches(text, ["exam", "test", "countdown", "revision"])) {
-    return "Go to Dashboard for Exam Countdown and Revision Queue. Add exam dates there, then use Planner to build the study schedule.";
+    return pageReply("exam", "Use Exam Mode when an exam is close and you need a direct revision sprint.");
   }
 
   if (matches(text, ["mood", "tired", "stress", "stressed", "energy", "burnout"])) {
@@ -279,8 +325,12 @@ function getAssistantReply(message) {
     return "StudySphere Premium is KES 250/month. It unlocks unlimited plans, notes, flashcards, files, groups, grade insights, and stronger Sage guidance.\n\nOpen: [Premium](premium.html)";
   }
 
+  if (matches(text, ["report", "progress", "weekly", "analytics"])) {
+    return pageReply("report", "Use Weekly Report to see what changed and what to improve next.");
+  }
+
   if (matches(text, ["where", "find", "located", "go to"])) {
-    return "Here is the map: Dashboard = overview and alerts, Planner = generated schedules and online notes, Tasks = assignments and due dates, Timer = Pomodoro focus, Games = break activities.";
+    return "Here is the map: Dashboard = overview and alerts, Setup = personalization, Autopilot = full study schedule, Reminders = due-date feed, Summarizer = notes into flashcards, Exam Mode = revision sprint, Report = weekly progress, Timer = Pomodoro focus, Games = break activities.";
   }
 
   return "I can help with navigation, planning, tasks, timer sessions, online notes, exams, revision, and study strategy. Try asking: 'What should I do next?' or 'Where are online notes?'";
@@ -306,11 +356,11 @@ function getNextStepAdvice(context) {
   }
 
   if (context.openTasks.length > 0 && context.plans.length === 0) {
-    return "You have tasks but no saved plan yet. Open Planner, describe your goal, and create a schedule so the work feels smaller.";
+    return "You have tasks but no saved plan yet. Open Autopilot, describe your goal, and create a weekly schedule so the work feels smaller.";
   }
 
   if (context.exams.length > 0) {
-    return "You have exams saved. Check the Dashboard countdown, then use Planner to make a revision schedule before the closest exam.";
+    return "You have exams saved. Open Exam Mode for a revision sprint, then use Autopilot for the full week.";
   }
 
   if (context.openTasks.length > 0) {
@@ -340,4 +390,30 @@ function escapeAssistantHtml(text) {
   return div.innerHTML;
 }
 
+function initPwaSupport() {
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const manifest = document.createElement("link");
+    manifest.rel = "manifest";
+    manifest.href = "manifest.json";
+    document.head.appendChild(manifest);
+  }
+
+  let theme = document.querySelector('meta[name="theme-color"]');
+  if (!theme) {
+    theme = document.createElement("meta");
+    theme.name = "theme-color";
+    document.head.appendChild(theme);
+  }
+  theme.content = "#070711";
+
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    window.addEventListener("load", function() {
+      navigator.serviceWorker.register("sw.js").catch(function() {
+        // The app still works without install support.
+      });
+    });
+  }
+}
+
+initPwaSupport();
 createAssistant();

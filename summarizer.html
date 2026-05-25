@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notes Summarizer - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">Study<span>Sphere</span></div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="notes.html">Notes</a></li>
+      <li><a href="summarizer.html" class="active">Summarizer</a></li>
+      <li><a href="flashcards.html">Flashcards</a></li>
+      <li><a href="autopilot.html">Autopilot</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='flashcards.html'">Flashcards</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header smart-hero">
+      <p class="arcade-kicker">AI Notes Summarizer</p>
+      <h1>Turn rough notes into revision assets.</h1>
+      <p class="page-sub">Paste notes and StudySphere creates a summary, keywords, checklist, quiz prompts, and flashcards.</p>
+    </section>
+
+    <section class="feature-grid two-col">
+      <form class="feature-panel smart-form" id="summarizer-form">
+        <label>Note title<input id="summary-title" class="task-input" type="text" placeholder="Lecture 4: Demand and Supply"></label>
+        <label>Subject<input id="summary-subject" class="task-input" type="text" placeholder="Economics"></label>
+        <label>Paste notes<textarea id="summary-source" class="task-input smart-large-textarea" rows="13" required></textarea></label>
+        <button class="btn-primary" type="submit">Summarize Notes</button>
+        <button class="btn-outline" id="save-summary-assets" type="button">Save Note and Flashcards</button>
+        <p class="form-status" id="summary-status"></p>
+      </form>
+
+      <section class="feature-panel smart-output-panel">
+        <h2 class="section-title">Revision Output</h2>
+        <div class="smart-output-grid" id="summary-output">
+          <p class="empty-panel">Your summary, quiz, and checklist will appear here.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/smart-tools.js"></script>
+</body>
+</html>

@@ -19,6 +19,7 @@ const premiumCurrency = process.env.PREMIUM_PRICE_CURRENCY || "KES";
 const dataDir = path.join(__dirname, "data");
 const premiumPath = path.join(dataDir, "premium-users.json");
 const ordersPath = path.join(dataDir, "pesapal-orders.json");
+const databasePath = path.join(dataDir, "studysphere-db.json");
 
 let tokenCache = { token: "", expiresAt: 0 };
 let ipnCache = { id: pesapalIpnId };
@@ -27,6 +28,12 @@ function ensureDataStore() {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   if (!fs.existsSync(premiumPath)) fs.writeFileSync(premiumPath, "{}");
   if (!fs.existsSync(ordersPath)) fs.writeFileSync(ordersPath, "{}");
+  if (!fs.existsSync(databasePath)) fs.writeFileSync(databasePath, JSON.stringify({
+    students: {},
+    activity: [],
+    payments: [],
+    createdAt: new Date().toISOString()
+  }, null, 2));
 }
 
 function readJson(filePath, fallback) {
@@ -59,6 +66,14 @@ function writeOrders(orders) {
   writeJson(ordersPath, orders);
 }
 
+function readDatabase() {
+  return readJson(databasePath, { students: {}, activity: [], payments: [] });
+}
+
+function writeDatabase(database) {
+  writeJson(databasePath, database);
+}
+
 function setPremium(email, patch) {
   const users = readPremiumUsers();
   const normalized = String(email || "").toLowerCase();
@@ -82,6 +97,31 @@ function setOrder(reference, patch) {
   };
   writeOrders(orders);
   return orders[reference];
+}
+
+function syncStudentRecord(email, patch) {
+  const normalized = String(email || "").toLowerCase();
+  if (!normalized) return null;
+  const database = readDatabase();
+  database.students[normalized] = {
+    ...(database.students[normalized] || {}),
+    email: normalized,
+    ...patch,
+    updatedAt: new Date().toISOString()
+  };
+  writeDatabase(database);
+  return database.students[normalized];
+}
+
+function appendActivity(event) {
+  const database = readDatabase();
+  database.activity.push({
+    id: Date.now() + Math.random(),
+    ...event,
+    at: new Date().toISOString()
+  });
+  database.activity = database.activity.slice(-1000);
+  writeDatabase(database);
 }
 
 function addMonth(date) {
@@ -192,6 +232,12 @@ function activatePremiumFromStatus(reference, status) {
     premiumStartedAt: now.toISOString(),
     premiumExpiresAt: addMonth(now).toISOString()
   });
+  appendActivity({
+    email: order.email,
+    role: "student",
+    type: "premium_payment",
+    detail: reference
+  });
   return true;
 }
 
@@ -205,8 +251,70 @@ app.get("/api/health", (req, res) => {
     paymentProvider: "pesapal",
     pesapalEnvironment,
     pesapalConfigured: Boolean(pesapalConsumerKey && pesapalConsumerSecret),
-    pesapalIpnConfigured: Boolean(ipnCache.id)
+    pesapalIpnConfigured: Boolean(ipnCache.id),
+    databaseReady: true
   });
+});
+
+app.post("/api/db/sync", (req, res) => {
+  const email = String(req.body.email || "").trim().toLowerCase();
+  if (!email) {
+    return res.status(400).json({ error: "Student email is required." });
+  }
+
+  const profile = req.body.profile || {};
+  const activity = req.body.activity || {};
+  const record = syncStudentRecord(email, {
+    profile,
+    lastClientSync: new Date().toISOString(),
+    consented: Boolean(req.body.consented),
+    appSnapshot: req.body.appSnapshot || {}
+  });
+
+  appendActivity({
+    email,
+    type: activity.type || "sync",
+    role: activity.role || "student",
+    detail: activity.detail || ""
+  });
+
+  res.json({ ok: true, student: record });
+});
+
+app.get("/api/db/student/:email", (req, res) => {
+  const email = String(req.params.email || "").toLowerCase();
+  const database = readDatabase();
+  res.json(database.students[email] || { email, missing: true });
+});
+
+app.get("/api/db/admin/overview", (req, res) => {
+  const database = readDatabase();
+  const premium = readPremiumUsers();
+  const orders = readOrders();
+  res.json({
+    students: Object.values(database.students),
+    activity: database.activity.slice(-200),
+    premiumUsers: Object.values(premium),
+    orders: Object.values(orders),
+    totals: {
+      students: Object.keys(database.students).length,
+      activityEvents: database.activity.length,
+      premiumUsers: Object.values(premium).filter(item => item.plan === "premium").length,
+      paymentOrders: Object.keys(orders).length
+    }
+  });
+});
+
+app.post("/api/db/payment-event", (req, res) => {
+  const database = readDatabase();
+  database.payments.push({
+    id: Date.now() + Math.random(),
+    ...req.body,
+    at: new Date().toISOString()
+  });
+  database.payments = database.payments.slice(-1000);
+  writeDatabase(database);
+  res.json({ ok: true });
 });
 
 app.get("/api/premium-status", (req, res) => {
