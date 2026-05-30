@@ -1,0 +1,16 @@
+{
+  "appId": "com.studysphere.app",
+  "appName": "StudySphere",
+  "webDir": "mobile-web",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#070711",
+      "showSpinner": false
+    }
+  }
+}

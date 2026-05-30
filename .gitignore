@@ -2,3 +2,9 @@ node_modules/
 .env
 data/
 *.log
+.android-build/
+mobile-web/
+dist/
+android/local.properties
+android/keystore.properties
+android/*.jks

@@ -32,6 +32,18 @@ function setPremiumStatus(status) {
   localStorage.setItem(premiumKey(), JSON.stringify(status));
 }
 
+function isNativeAndroidApp() {
+  return Boolean(
+    window.Capacitor ||
+    window.STUDYSPHERE_MOBILE_BUILD ||
+    /\bwv\b|Capacitor/i.test(navigator.userAgent)
+  );
+}
+
+function apiUrl(path) {
+  return (window.STUDYSPHERE_API_BASE || "") + path;
+}
+
 function canUsePremiumFeature(type, count) {
   if (isPremium()) return true;
   return count < (PREMIUM_LIMITS[type] || 0);
@@ -56,12 +68,18 @@ function initBilling() {
   renderBillingStatus();
   syncPremiumFromServer();
 
+  if (isNativeAndroidApp()) {
+    configureAndroidBillingNotice(statusEl);
+    return;
+  }
+
   const pesapalBtn = document.getElementById("pesapal-checkout-btn");
   if (pesapalBtn) {
     pesapalBtn.onclick = startPesapalCheckout;
   }
 
-  document.getElementById("simulate-upgrade-btn").onclick = function() {
+  const simulateBtn = document.getElementById("simulate-upgrade-btn");
+  if (simulateBtn) simulateBtn.onclick = function() {
     if (!document.getElementById("billing-consent").checked) {
       statusEl.textContent = "Please confirm the simulated checkout notice first.";
       return;
@@ -81,7 +99,8 @@ function initBilling() {
     renderBillingStatus();
   };
 
-  document.getElementById("cancel-premium-btn").onclick = function() {
+  const cancelBtn = document.getElementById("cancel-premium-btn");
+  if (cancelBtn) cancelBtn.onclick = function() {
     setPremiumStatus({
       plan: "free",
       paymentStatus: "cancelled",
@@ -89,6 +108,25 @@ function initBilling() {
     });
     renderBillingStatus();
   };
+}
+
+function configureAndroidBillingNotice(statusEl) {
+  const pesapalBtn = document.getElementById("pesapal-checkout-btn");
+  const simulateBtn = document.getElementById("simulate-upgrade-btn");
+  const cancelBtn = document.getElementById("cancel-premium-btn");
+  const consent = document.getElementById("billing-consent");
+
+  if (pesapalBtn) pesapalBtn.style.display = "none";
+  if (simulateBtn) simulateBtn.style.display = "none";
+  if (cancelBtn) cancelBtn.style.display = "none";
+  if (consent) consent.closest("label").style.display = "none";
+
+  if (!isPremium()) {
+    statusEl.innerHTML = `
+      <strong>Android billing setup required</strong>
+      <span>For the Google Play version, Premium purchases must use Google Play Billing. The free StudySphere tools work in this APK while Play Billing is being connected.</span>
+    `;
+  }
 }
 
 async function startPesapalCheckout() {
@@ -107,7 +145,7 @@ async function startPesapalCheckout() {
 
   try {
     statusEl.textContent = "Creating secure Pesapal checkout...";
-    const response = await fetch("/api/create-pesapal-order", {
+    const response = await fetch(apiUrl("/api/create-pesapal-order"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: user.email, name: user.name || "StudySphere Student" })
@@ -125,7 +163,7 @@ async function syncPremiumFromServer() {
   if (!user || !user.email) return;
 
   try {
-    const response = await fetch("/api/premium-status?email=" + encodeURIComponent(user.email));
+    const response = await fetch(apiUrl("/api/premium-status?email=" + encodeURIComponent(user.email)));
     if (!response.ok) return;
     const status = await response.json();
     if (status && status.plan === "premium") {

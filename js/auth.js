@@ -41,6 +41,7 @@ function recordLoginEvent(email, role, type) {
 
 function syncAuthToServer(profile, type) {
   if (!profile || !profile.email || typeof fetch !== "function") return;
+  const apiBase = window.STUDYSPHERE_API_BASE || "";
   const snapshot = {
     tasks: authLoad("ss_tasks", []).length,
     plans: authLoad("ss_plans", []).length,
@@ -50,7 +51,7 @@ function syncAuthToServer(profile, type) {
     exams: authLoad("ss_exams", []).length
   };
 
-  fetch("/api/db/sync", {
+  fetch(apiBase + "/api/db/sync", {
     method: "POST",
     keepalive: true,
     headers: { "Content-Type": "application/json" },
