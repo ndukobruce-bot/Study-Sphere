@@ -1,5 +1,9 @@
 const ADMIN_EMAIL = "ndukobruce@gmail.com";
 const ADMIN_PASSWORD = "@Nduko123";
+const CURRENT_USER_KEY = "ss_current_user";
+const REMEMBERED_SESSION_KEY = "ss_remembered_session";
+const KNOWN_ACCOUNTS_KEY = "ss_known_accounts";
+const SIGNED_OUT_KEY = "ss_session_signed_out";
 
 function authLoad(key, fallback) {
   return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
@@ -10,11 +14,22 @@ function authSave(key, value) {
 }
 
 function getCurrentUser() {
-  return authLoad("ss_current_user", null);
+  return authLoad(CURRENT_USER_KEY, null);
 }
 
 function setCurrentUser(user) {
-  authSave("ss_current_user", user);
+  const now = new Date().toISOString();
+  const session = {
+    ...user,
+    sessionStartedAt: user.sessionStartedAt || user.loginAt || now,
+    lastSeenAt: now,
+    remembered: true
+  };
+
+  authSave(CURRENT_USER_KEY, session);
+  authSave(REMEMBERED_SESSION_KEY, session);
+  localStorage.removeItem(SIGNED_OUT_KEY);
+  upsertKnownAccount(session);
 }
 
 function logoutUser() {
@@ -23,8 +38,71 @@ function logoutUser() {
     recordLoginEvent(user.email, user.role, "logout");
     syncAuthToServer(user, "logout");
   }
-  localStorage.removeItem("ss_current_user");
+  localStorage.removeItem(CURRENT_USER_KEY);
+  localStorage.removeItem(REMEMBERED_SESSION_KEY);
+  localStorage.setItem(SIGNED_OUT_KEY, new Date().toISOString());
   window.location.href = "login.html";
+}
+
+function restoreRememberedUser() {
+  const current = getCurrentUser();
+  if (current) return touchCurrentSession(current);
+  if (localStorage.getItem(SIGNED_OUT_KEY)) return null;
+
+  const remembered = authLoad(REMEMBERED_SESSION_KEY, null);
+  if (!remembered || !remembered.email || !remembered.consented) return null;
+
+  const restored = {
+    ...remembered,
+    restoredAt: new Date().toISOString()
+  };
+  authSave(CURRENT_USER_KEY, restored);
+  recordLoginEvent(restored.email, restored.role || "student", "auto_restore");
+  syncAuthToServer(restored, "auto_restore");
+  return touchCurrentSession(restored);
+}
+
+function touchCurrentSession(user) {
+  if (!user || !user.email) return user;
+  const updated = {
+    ...user,
+    lastSeenAt: new Date().toISOString(),
+    remembered: true
+  };
+  authSave(CURRENT_USER_KEY, updated);
+  authSave(REMEMBERED_SESSION_KEY, updated);
+  upsertKnownAccount(updated);
+  return updated;
+}
+
+function upsertKnownAccount(user) {
+  if (!user || !user.email) return;
+  const accounts = authLoad(KNOWN_ACCOUNTS_KEY, []);
+  const existing = accounts.find(account => account.email === user.email);
+  const safeUser = {
+    email: user.email,
+    name: user.name || "",
+    role: user.role || "student",
+    university: user.university || "",
+    course: user.course || "",
+    consented: Boolean(user.consented),
+    firstSeenAt: user.createdAt || user.loginAt || new Date().toISOString(),
+    lastSeenAt: user.lastSeenAt || new Date().toISOString()
+  };
+
+  if (existing) {
+    Object.assign(existing, safeUser, {
+      firstSeenAt: existing.firstSeenAt || safeUser.firstSeenAt,
+      sessionCount: (existing.sessionCount || 0) + 1
+    });
+  } else {
+    accounts.push({
+      ...safeUser,
+      sessionCount: 1
+    });
+  }
+
+  authSave(KNOWN_ACCOUNTS_KEY, accounts);
 }
 
 function recordLoginEvent(email, role, type) {
@@ -36,7 +114,7 @@ function recordLoginEvent(email, role, type) {
     at: new Date().toISOString(),
     consented: true
   });
-  authSave("ss_login_events", events.slice(-100));
+  authSave("ss_login_events", events.slice(-500));
 }
 
 function syncAuthToServer(profile, type) {
@@ -99,6 +177,12 @@ function initLoginPage() {
   const adminForm = document.getElementById("admin-login-form");
   if (!studentForm || !adminForm) return;
 
+  const activeUser = restoreRememberedUser();
+  if (activeUser) {
+    window.location.href = activeUser.role === "admin" ? "admin.html" : "dashboard.html";
+    return;
+  }
+
   document.querySelectorAll("[data-auth-tab]").forEach(button => {
     button.onclick = function() {
       const tab = button.dataset.authTab;
@@ -133,7 +217,7 @@ function initLoginPage() {
       return;
     }
 
-    setCurrentUser({
+    const userSession = {
       email: profile.email,
       name: profile.name,
       university: profile.university,
@@ -141,7 +225,8 @@ function initLoginPage() {
       role: "student",
       consented: true,
       loginAt: new Date().toISOString()
-    });
+    };
+    setCurrentUser(userSession);
     recordLoginEvent(profile.email, "student", "login");
     syncAuthToServer(profile, "login");
     window.location.href = "dashboard.html";
@@ -163,13 +248,14 @@ function initLoginPage() {
       return;
     }
 
-    setCurrentUser({
+    const adminSession = {
       email: ADMIN_EMAIL,
       name: "Nduko Bruce",
       role: "admin",
       consented: true,
       loginAt: new Date().toISOString()
-    });
+    };
+    setCurrentUser(adminSession);
     recordLoginEvent(ADMIN_EMAIL, "admin", "login");
     syncAuthToServer({ email: ADMIN_EMAIL, name: "Nduko Bruce", role: "admin", consented: true }, "login");
     window.location.href = "admin.html";
@@ -186,7 +272,7 @@ function requireAuth() {
   const publicPages = ["index.html", "login.html"];
   if (publicPages.indexOf(path) !== -1) return;
 
-  const user = getCurrentUser();
+  const user = restoreRememberedUser();
   if (!user) {
     window.location.href = "login.html";
     return;
@@ -217,16 +303,21 @@ function initAdminPage() {
   const grades = authLoad("ss_grades", []);
   const files = authLoad("ss_files", []);
   const groups = authLoad("ss_groups", []);
+  const knownAccounts = authLoad(KNOWN_ACCOUNTS_KEY, []);
+  const activeUsers = knownAccounts.filter(account => {
+    if (!account.lastSeenAt) return false;
+    return Date.now() - new Date(account.lastSeenAt).getTime() < 1000 * 60 * 30;
+  }).length;
   const consented = students.filter(student => student.consented).length;
 
   setAdminText("admin-total-logins", events.filter(event => event.type === "login").length);
-  setAdminText("admin-total-users", students.length);
-  setAdminText("admin-active-user", getCurrentUser() ? "1" : "0");
+  setAdminText("admin-total-users", knownAccounts.length || students.length);
+  setAdminText("admin-active-user", activeUsers);
   setAdminText("admin-consent-rate", students.length ? Math.round((consented / students.length) * 100) + "%" : "0%");
 
   renderAdminUsers(students);
   renderAdminEvents(events);
-  const data = { tasks, plans, exams, pomodoros, students, events, notes, flashcards, grades, files, groups, currentUser: user };
+  const data = { tasks, plans, exams, pomodoros, students, knownAccounts, events, notes, flashcards, grades, files, groups, currentUser: user };
   renderAdminDataGrid(data);
   renderAdminSnapshot(data);
   initAdminActions(data);
@@ -282,6 +373,7 @@ function renderAdminDataGrid(data) {
     ["Exams", data.exams.length],
     ["Pomodoros", totalPomodoros],
     ["Students", data.students.length],
+    ["Known Accounts", (data.knownAccounts || []).length],
     ["Events", data.events.length],
     ["Notes", data.notes.length],
     ["Flashcards", data.flashcards.length],
@@ -362,6 +454,7 @@ function escapeAuthHtml(text) {
   return div.innerHTML;
 }
 
+restoreRememberedUser();
 requireAuth();
 initLoginPage();
 initAdminPage();

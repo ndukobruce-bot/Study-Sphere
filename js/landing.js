@@ -14,6 +14,16 @@
       speed: 0.08 + ((seed * 7) % 9) / 100
     };
   });
+  const transmissions = Array.from({ length: 18 }, function(_, index) {
+    const seed = index + 3;
+    return {
+      lat: (-56 + ((seed * 29) % 112)) * Math.PI / 180,
+      lane: ((seed * 47) % 360) * Math.PI / 180,
+      speed: 0.22 + ((seed * 11) % 15) / 100,
+      color: index % 3 === 0 ? "34, 211, 238" : index % 3 === 1 ? "168, 85, 247" : "16, 185, 129",
+      size: 1.7 + (index % 4) * 0.38
+    };
+  });
 
   const nodes = nodeEls.map(function(el, index) {
     return {
@@ -168,6 +178,40 @@
     ctx.stroke();
   }
 
+  function drawTransmissions(scene) {
+    ctx.save();
+    transmissions.forEach(function(signal, index) {
+      const lon = signal.lane + time * signal.speed;
+      const head = project(spherePoint(signal.lat, lon), scene);
+      if (head.z < -0.66) return;
+
+      const alpha = Math.max(0.08, Math.min(0.82, (head.z + 1) / 2));
+      const trail = [];
+      for (let step = 0; step < 8; step++) {
+        const point = project(spherePoint(signal.lat, lon - step * 0.045), scene);
+        if (point.z > -0.76) trail.push(point);
+      }
+
+      if (trail.length > 1) {
+        ctx.beginPath();
+        trail.forEach(function(point, step) {
+          if (step === 0) ctx.moveTo(point.x, point.y);
+          else ctx.lineTo(point.x, point.y);
+        });
+        ctx.strokeStyle = "rgba(" + signal.color + ", " + (alpha * 0.44) + ")";
+        ctx.lineWidth = 1.3;
+        ctx.stroke();
+      }
+
+      drawSoftGlow(head.x, head.y, 20 + index % 3 * 7, "rgba(" + signal.color + ", " + (alpha * 0.18) + ")");
+      ctx.fillStyle = "rgba(" + signal.color + ", " + alpha + ")";
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, signal.size * head.scale, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
   function drawOrbitLine(scene, lat, lon, color) {
     ctx.beginPath();
     let started = false;
@@ -250,6 +294,7 @@
     drawBackground();
     const scene = getScene();
     drawGlobe(scene);
+    drawTransmissions(scene);
     updateNodes(scene);
     drawNodeConnections();
     drawNodeLights();

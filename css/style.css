@@ -63,6 +63,45 @@ body {
   font-size: 16px;
   line-height: 1.6;
   min-height: 100vh;
+  position: relative;
+  --pointer-x: 50%;
+  --pointer-y: 20%;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0 38%, rgba(124, 58, 237, 0.06) 48%, transparent 58%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 76px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 76px);
+  background-size: 220% 100%, 76px 76px, 76px 76px;
+  opacity: 0.46;
+  animation: ambientSweep 18s linear infinite;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--pointer-x) var(--pointer-y), rgba(34, 211, 238, 0.09), transparent 18rem);
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+
+body > :not(script) {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes ambientSweep {
+  from { background-position: 0 0, 0 0, 0 0; }
+  to { background-position: 220% 0, 76px 0, 0 76px; }
 }
 
 a {
@@ -432,6 +471,11 @@ ul {
   overflow-x: hidden;
 }
 
+.landing-body::before,
+.landing-body::after {
+  display: none;
+}
+
 .landing-nav {
   position: fixed;
   inset: 0 0 auto 0;
@@ -455,6 +499,50 @@ ul {
   overflow: hidden;
   isolation: isolate;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.orbital-hero::before,
+.orbital-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.orbital-hero::before {
+  background:
+    linear-gradient(110deg, transparent 0 33%, rgba(124, 58, 237, 0.18) 39%, rgba(34, 211, 238, 0.11) 42%, transparent 49%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 34px);
+  background-size: 190% 100%, 100% 34px;
+  mix-blend-mode: screen;
+  opacity: 0.4;
+  animation: heroLightSweep 9s linear infinite;
+}
+
+.orbital-hero::after {
+  background:
+    radial-gradient(ellipse at 68% 48%, rgba(34, 211, 238, 0.12), transparent 34rem),
+    linear-gradient(180deg, transparent 62%, rgba(5, 5, 10, 0.6));
+  opacity: 0.88;
+}
+
+.hero-signal-grid {
+  position: absolute;
+  inset: 7rem 3rem 3rem auto;
+  z-index: 3;
+  width: min(52vw, 760px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transform: skewX(-8deg);
+  opacity: 0.36;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 76%, transparent);
+  animation: signalGridSlide 13s linear infinite;
 }
 
 .study-globe-canvas {
@@ -537,6 +625,15 @@ ul {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   backdrop-filter: blur(16px);
+  animation: metricFloat 6s ease-in-out infinite;
+}
+
+.landing-metrics span:nth-child(2) {
+  animation-delay: -1.8s;
+}
+
+.landing-metrics span:nth-child(3) {
+  animation-delay: -3.1s;
 }
 
 .landing-metrics strong {
@@ -565,6 +662,16 @@ ul {
   backdrop-filter: blur(18px);
   pointer-events: auto;
   will-change: transform, opacity, left, top;
+  overflow: hidden;
+}
+
+.orbit-node::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  transform: translateX(-120%);
+  animation: nodeShimmer 4.8s ease-in-out infinite;
 }
 
 .orbit-node::before {
@@ -603,6 +710,84 @@ ul {
   color: #fff;
 }
 
+.live-study-feed {
+  position: absolute;
+  right: clamp(1rem, 4vw, 4.5rem);
+  bottom: clamp(2rem, 6vw, 5rem);
+  z-index: 6;
+  display: grid;
+  gap: 0.62rem;
+  width: min(320px, calc(100% - 2rem));
+  pointer-events: none;
+}
+
+.live-feed-head,
+.live-feed-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(10, 10, 22, 0.56);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.live-feed-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.62rem 0.78rem;
+  color: #fff;
+  font-size: 0.82rem;
+}
+
+.live-dot {
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 50%;
+  background: var(--soft-green);
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  animation: livePulse 1.7s ease-out infinite;
+}
+
+.live-feed-card {
+  display: grid;
+  gap: 0.16rem;
+  padding: 0.78rem 0.9rem;
+  animation: feedRise 7s ease-in-out infinite;
+}
+
+.live-feed-card:nth-child(3) {
+  animation-delay: -2.1s;
+}
+
+.live-feed-card:nth-child(4) {
+  animation-delay: -4.2s;
+}
+
+.live-feed-card span {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.live-feed-card strong {
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.feed-card-purple {
+  border-left: 3px solid var(--accent-purple);
+}
+
+.feed-card-blue {
+  border-left: 3px solid var(--soft-blue);
+}
+
+.feed-card-green {
+  border-left: 3px solid var(--soft-green);
+}
+
 .landing-tool-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -620,6 +805,18 @@ ul {
   background:
     radial-gradient(circle at top left, rgba(124, 58, 237, 0.2), transparent 56%),
     rgba(12, 12, 24, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-tool-strip a::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--soft-blue), var(--soft-green));
+  transform: translateX(-100%);
+  transition: transform 0.38s ease;
 }
 
 .landing-tool-strip a:hover {
@@ -627,6 +824,11 @@ ul {
   background:
     radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 58%),
     rgba(20, 17, 36, 0.98);
+  transform: translateY(-2px);
+}
+
+.landing-tool-strip a:hover::after {
+  transform: translateX(0);
 }
 
 .landing-tool-strip strong {
@@ -639,6 +841,90 @@ ul {
   font-size: 0.92rem;
   line-height: 1.55;
   max-width: 240px;
+}
+
+.motion-study-wall {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(360px, 1fr);
+  gap: clamp(1.4rem, 5vw, 4rem);
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(3.8rem, 8vw, 6.5rem) 0 clamp(2rem, 5vw, 4rem);
+}
+
+.motion-study-wall::before {
+  content: "";
+  position: absolute;
+  inset: 18% 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.8), rgba(34, 211, 238, 0.6), transparent);
+  animation: wallTrace 4.8s ease-in-out infinite;
+}
+
+.motion-wall-copy h2 {
+  font-family: var(--font-head);
+  font-size: 3.5rem;
+  line-height: 1.04;
+  color: #fff;
+}
+
+.motion-wall-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.motion-tile {
+  min-height: 156px;
+  display: grid;
+  align-content: end;
+  gap: 0.25rem;
+  padding: 1rem;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+    rgba(12, 12, 24, 0.76);
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0);
+}
+
+.motion-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0 28%, rgba(255, 255, 255, 0.12) 46%, transparent 64%);
+  transform: translateX(-130%);
+  animation: tileScan 6s ease-in-out infinite;
+}
+
+.motion-tile:nth-child(2)::before { animation-delay: -1.5s; }
+.motion-tile:nth-child(3)::before { animation-delay: -3s; }
+.motion-tile:nth-child(4)::before { animation-delay: -4.5s; }
+
+.motion-tile:hover {
+  color: #fff;
+  border-color: rgba(168, 85, 247, 0.72);
+  transform: translateY(-4px);
+}
+
+.motion-tile span {
+  color: var(--soft-blue);
+  font-family: var(--font-head);
+  font-weight: 900;
+}
+
+.motion-tile strong {
+  font-family: var(--font-head);
+  font-size: 1.08rem;
+}
+
+.motion-tile small {
+  color: var(--text-secondary);
 }
 
 .landing-showcase {
@@ -781,6 +1067,72 @@ ul {
 .landing-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: #070711;
+}
+
+@keyframes heroLightSweep {
+  from { background-position: -120% 0, 0 0; }
+  to { background-position: 120% 0, 0 34px; }
+}
+
+@keyframes signalGridSlide {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 64px 0, 0 64px; }
+}
+
+@keyframes metricFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes nodeShimmer {
+  0%, 55% { transform: translateX(-120%); }
+  85%, 100% { transform: translateX(120%); }
+}
+
+@keyframes livePulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.58); }
+  100% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+}
+
+@keyframes feedRise {
+  0%, 100% { transform: translateY(0); opacity: 0.88; }
+  50% { transform: translateY(-8px); opacity: 1; }
+}
+
+@keyframes wallTrace {
+  0%, 100% { transform: scaleX(0.28); opacity: 0.36; }
+  50% { transform: scaleX(1); opacity: 0.82; }
+}
+
+@keyframes tileScan {
+  0%, 45% { transform: translateX(-130%); }
+  82%, 100% { transform: translateX(130%); }
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.reveal-on-scroll.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ============================================
@@ -3083,6 +3435,17 @@ ul {
     max-width: 96%;
   }
 
+  .hero-signal-grid {
+    inset: 9rem 0 auto 0;
+    width: 100%;
+    height: 52%;
+    opacity: 0.22;
+  }
+
+  .live-study-feed {
+    display: none;
+  }
+
   .orbit-node {
     min-width: 118px;
     max-width: 136px;
@@ -3103,6 +3466,23 @@ ul {
 
   .landing-tool-strip a {
     min-height: 7.4rem;
+  }
+
+  .motion-study-wall {
+    grid-template-columns: 1fr;
+    width: min(100% - 2rem, 620px);
+  }
+
+  .motion-wall-copy h2 {
+    font-size: 2.35rem;
+  }
+
+  .motion-wall-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .motion-tile {
+    min-height: 124px;
   }
 
   .landing-showcase {

@@ -113,6 +113,63 @@ function updateAuthNav() {
 
 updateAuthNav();
 
+function initInteractiveAtmosphere() {
+  const root = document.body;
+  if (!root) return;
+
+  window.addEventListener("pointermove", function(event) {
+    root.style.setProperty("--pointer-x", event.clientX + "px");
+    root.style.setProperty("--pointer-y", event.clientY + "px");
+  }, { passive: true });
+}
+
+function initScrollReveals() {
+  const targets = Array.from(document.querySelectorAll([
+    ".stat-card",
+    ".hub-panel",
+    ".quick-card",
+    ".notification-section",
+    ".progress-section",
+    ".game-tile",
+    ".game-card",
+    ".feature-card",
+    ".landing-tool-strip a",
+    ".motion-tile",
+    ".command-preview",
+    ".auth-card"
+  ].join(",")));
+
+  if (!targets.length) return;
+
+  targets.forEach(function(target, index) {
+    target.classList.add("reveal-on-scroll");
+    target.style.transitionDelay = Math.min(index * 35, 280) + "ms";
+  });
+
+  if (!("IntersectionObserver" in window)) {
+    targets.forEach(function(target) {
+      target.classList.add("in-view");
+    });
+    return;
+  }
+
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in-view");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.14 });
+
+  targets.forEach(function(target) {
+    observer.observe(target);
+  });
+}
+
+initInteractiveAtmosphere();
+initScrollReveals();
+
 // ---- STUDYSPHERE GUIDE ASSISTANT ----
 const assistantPages = {
   dashboard: {
