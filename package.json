@@ -1,22 +1,76 @@
 {
   "name": "studysphere",
   "version": "1.0.0",
-  "description": "StudySphere student productivity hub with Pesapal-ready premium billing and Android packaging.",
-  "main": "server.js",
+  "description": "StudySphere student productivity hub with mobile and desktop packaging.",
+  "main": "desktop/main.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "prepare:mobile": "node scripts/prepare-mobile.js",
+    "prepare:desktop": "node scripts/prepare-desktop.js",
+    "desktop:icon": "node scripts/create-windows-icon.js",
+    "desktop:dev": "npm run prepare:desktop && npm run desktop:icon && electron .",
+    "windows:installer": "set ELECTRON_CACHE=.electron-cache&& set ELECTRON_BUILDER_CACHE=.electron-builder-cache&& npm run prepare:desktop && npm run desktop:icon && electron-builder --win nsis portable --x64",
     "android:sync": "npm run prepare:mobile && cap sync android",
     "android:open": "npm run android:sync && cap open android",
     "android:apk": "npm run android:sync && cd android && gradlew.bat assembleDebug",
-    "android:aab": "npm run android:sync && cd android && gradlew.bat bundleRelease"
+    "android:aab": "npm run android:sync && cd android && gradlew.bat bundleRelease",
+    "ios:add": "npm run prepare:mobile && cap add ios",
+    "ios:sync": "npm run prepare:mobile && cap sync ios",
+    "ios:open": "npm run ios:sync && cap open ios"
+  },
+  "build": {
+    "appId": "com.studysphere.app",
+    "productName": "StudySphere",
+    "copyright": "Copyright (c) 2026 StudySphere",
+    "electronDist": "node_modules/electron/dist",
+    "directories": {
+      "output": "dist/windows"
+    },
+    "files": [
+      "desktop/**/*",
+      "desktop-web/**/*",
+      "assets/images/studysphere-icon.svg",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "icon": "desktop/assets/studysphere.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "StudySphere"
+    }
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
     "@capacitor/cli": "^8.3.4",
     "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1"
   }
 }

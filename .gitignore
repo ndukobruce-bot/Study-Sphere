@@ -2,8 +2,11 @@ node_modules/
 .env
 data/
 *.log
+.electron-cache/
+.electron-builder-cache/
 .android-build/
 mobile-web/
+desktop-web/
 dist/
 android/local.properties
 android/keystore.properties

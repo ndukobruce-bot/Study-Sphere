@@ -32,12 +32,29 @@ function setPremiumStatus(status) {
   localStorage.setItem(premiumKey(), JSON.stringify(status));
 }
 
-function isNativeAndroidApp() {
+function isPackagedApp() {
   return Boolean(
     window.Capacitor ||
     window.STUDYSPHERE_MOBILE_BUILD ||
-    /\bwv\b|Capacitor/i.test(navigator.userAgent)
+    window.STUDYSPHERE_DESKTOP_BUILD ||
+    /\bwv\b|Capacitor|Electron/i.test(navigator.userAgent)
   );
+}
+
+function packagedPlatform() {
+  try {
+    if (window.Capacitor && typeof window.Capacitor.getPlatform === "function") {
+      const platform = window.Capacitor.getPlatform();
+      if (platform === "ios") return "iOS";
+      if (platform === "android") return "Android";
+    }
+  } catch (error) {
+    // Fall back to build markers below.
+  }
+
+  if (window.STUDYSPHERE_DESKTOP_BUILD || /Electron/i.test(navigator.userAgent)) return "Windows";
+  if (window.STUDYSPHERE_MOBILE_BUILD) return "Mobile";
+  return "App";
 }
 
 function apiUrl(path) {
@@ -68,8 +85,8 @@ function initBilling() {
   renderBillingStatus();
   syncPremiumFromServer();
 
-  if (isNativeAndroidApp()) {
-    configureAndroidBillingNotice(statusEl);
+  if (isPackagedApp()) {
+    configurePackagedBillingNotice(statusEl);
     return;
   }
 
@@ -110,11 +127,12 @@ function initBilling() {
   };
 }
 
-function configureAndroidBillingNotice(statusEl) {
+function configurePackagedBillingNotice(statusEl) {
   const pesapalBtn = document.getElementById("pesapal-checkout-btn");
   const simulateBtn = document.getElementById("simulate-upgrade-btn");
   const cancelBtn = document.getElementById("cancel-premium-btn");
   const consent = document.getElementById("billing-consent");
+  const platform = packagedPlatform();
 
   if (pesapalBtn) pesapalBtn.style.display = "none";
   if (simulateBtn) simulateBtn.style.display = "none";
@@ -122,10 +140,17 @@ function configureAndroidBillingNotice(statusEl) {
   if (consent) consent.closest("label").style.display = "none";
 
   if (!isPremium()) {
-    statusEl.innerHTML = `
-      <strong>Android billing setup required</strong>
-      <span>For the Google Play version, Premium purchases must use Google Play Billing. The free StudySphere tools work in this APK while Play Billing is being connected.</span>
-    `;
+    if (platform === "Windows") {
+      statusEl.innerHTML = `
+        <strong>Desktop billing needs the hosted API</strong>
+        <span>The installed Windows app keeps the free StudySphere tools available offline. Premium checkout should run from the hosted web app or a configured StudySphere backend.</span>
+      `;
+    } else {
+      statusEl.innerHTML = `
+        <strong>${platform} billing setup required</strong>
+        <span>Store builds need native subscription billing before Premium can be sold inside the app. The free StudySphere tools work while billing is being connected.</span>
+      `;
+    }
   }
 }
 
