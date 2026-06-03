@@ -179,10 +179,6 @@ if (saveBtn) {
   saveBtn.onclick = function() {
     if (!currentSchedule) return;
     var plans = loadPlans();
-    if (typeof canUsePremiumFeature === "function" && !canUsePremiumFeature("plans", plans.length)) {
-      showUpgradePrompt("Unlimited saved plans");
-      return;
-    }
     plans.push(currentSchedule);
     savePlans(plans.slice(-8));
     renderSavedPlans();

@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Capacitor and Cordova runtime classes are reflected by the WebView bridge.
+-keep class com.getcapacitor.** { *; }
+-keep class org.apache.cordova.** { *; }
+-keep class org.apache.cordova.engine.** { *; }
+-keepattributes *Annotation*

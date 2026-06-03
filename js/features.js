@@ -119,10 +119,6 @@ function initNotes() {
   form.addEventListener("submit", function(event) {
     event.preventDefault();
     const notes = featureLoad("ss_notes");
-    if (typeof canUsePremiumFeature === "function" && !canUsePremiumFeature("notes", notes.length)) {
-      showUpgradePrompt("Unlimited notes");
-      return;
-    }
     notes.push({
       id: Date.now(),
       title: document.getElementById("note-title").value.trim(),
@@ -153,10 +149,6 @@ function initFlashcards() {
   form.addEventListener("submit", function(event) {
     event.preventDefault();
     const cards = featureLoad("ss_flashcards");
-    if (typeof canUsePremiumFeature === "function" && !canUsePremiumFeature("flashcards", cards.length)) {
-      showUpgradePrompt("Unlimited flashcards");
-      return;
-    }
     cards.push({
       id: Date.now(),
       subject: document.getElementById("flash-subject").value.trim(),
@@ -231,8 +223,7 @@ function renderGrades() {
   const weight = grades.reduce((sum, item) => sum + item.weight, 0);
   const weighted = grades.reduce((sum, item) => sum + (item.score * item.weight), 0);
   const average = weight ? Math.round(weighted / weight) : 0;
-  const premium = typeof isPremium === "function" && isPremium();
-  summary.innerHTML = `<div class="analytics-card"><span>Current Average</span><strong>${average}%</strong></div><div class="analytics-card"><span>Weight Logged</span><strong>${weight}%</strong></div>${premium ? `<div class="analytics-card"><span>Needed for 80%</span><strong>${Math.max(0, Math.round((80 - average) * 1.2))}%</strong></div>` : `<div class="analytics-card locked-card"><span>Premium Insight</span><strong><a href="premium.html">Unlock</a></strong></div>`}`;
+  summary.innerHTML = `<div class="analytics-card"><span>Current Average</span><strong>${average}%</strong></div><div class="analytics-card"><span>Weight Logged</span><strong>${weight}%</strong></div><div class="analytics-card"><span>Needed for 80%</span><strong>${Math.max(0, Math.round((80 - average) * 1.2))}%</strong></div>`;
   list.innerHTML = grades.length ? "" : `<p class="empty-panel">No grades added yet.</p>`;
   grades.slice().reverse().forEach(grade => list.appendChild(featureCard(grade.title, grade.course, grade.score + "% score - " + grade.weight + "% weight")));
 }
@@ -245,10 +236,6 @@ function initFiles() {
     const input = document.getElementById("file-input");
     const file = input.files[0];
     const files = featureLoad("ss_files");
-    if (typeof canUsePremiumFeature === "function" && !canUsePremiumFeature("files", files.length)) {
-      showUpgradePrompt("File attachments");
-      return;
-    }
     files.push({
       id: Date.now(),
       title: document.getElementById("file-title").value.trim(),
@@ -278,10 +265,6 @@ function initGroups() {
   form.addEventListener("submit", function(event) {
     event.preventDefault();
     const groups = featureLoad("ss_groups");
-    if (typeof canUsePremiumFeature === "function" && !canUsePremiumFeature("groups", groups.length)) {
-      showUpgradePrompt("Unlimited study groups");
-      return;
-    }
     groups.push({
       id: Date.now(),
       name: document.getElementById("group-name").value.trim(),

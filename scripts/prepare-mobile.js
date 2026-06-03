@@ -7,7 +7,6 @@ const outDir = path.join(root, "mobile-web");
 const files = [
   "admin.html",
   "autopilot.html",
-  "billing.html",
   "calendar.html",
   "dashboard.html",
   "exam-mode.html",
@@ -22,7 +21,7 @@ const files = [
   "notes.html",
   "onboarding.html",
   "planner.html",
-  "premium.html",
+  "privacy.html",
   "profile.html",
   "reminders.html",
   "report.html",
@@ -61,7 +60,12 @@ resetDir(outDir);
 files.forEach(copyFile);
 dirs.forEach(copyDir);
 
-const marker = `window.STUDYSPHERE_MOBILE_BUILD = true;\n`;
+const marker = [
+  "window.STUDYSPHERE_MOBILE_BUILD = true;",
+  "window.STUDYSPHERE_DISABLE_ADMIN = true;",
+  "window.STUDYSPHERE_PLATFORM = \"android\";",
+  ""
+].join("\n");
 fs.writeFileSync(path.join(outDir, "js", "mobile-build.js"), marker);
 
 const htmlFiles = files.filter(file => file.endsWith(".html"));

@@ -1,5 +1,5 @@
-const ADMIN_EMAIL = "ndukobruce@gmail.com";
-const ADMIN_PASSWORD = "@Nduko123";
+const ADMIN_EMAIL = window.STUDYSPHERE_ADMIN_EMAIL || "ndukobruce@gmail.com";
+const ADMIN_PASSWORD = window.STUDYSPHERE_ADMIN_PASSWORD || "";
 const CURRENT_USER_KEY = "ss_current_user";
 const REMEMBERED_SESSION_KEY = "ss_remembered_session";
 const KNOWN_ACCOUNTS_KEY = "ss_known_accounts";
@@ -11,6 +11,10 @@ function authLoad(key, fallback) {
 
 function authSave(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+function adminAccessDisabled() {
+  return Boolean(window.STUDYSPHERE_DISABLE_ADMIN || window.STUDYSPHERE_MOBILE_BUILD);
 }
 
 function getCurrentUser() {
@@ -176,6 +180,7 @@ function initLoginPage() {
   const studentForm = document.getElementById("student-login-form");
   const adminForm = document.getElementById("admin-login-form");
   if (!studentForm || !adminForm) return;
+  configureAdminAccessNotice(adminForm);
 
   const activeUser = restoreRememberedUser();
   if (activeUser) {
@@ -234,6 +239,11 @@ function initLoginPage() {
 
   adminForm.addEventListener("submit", function(event) {
     event.preventDefault();
+    if (adminAccessDisabled() || !ADMIN_PASSWORD) {
+      setAuthError("Admin access is disabled in this build. Use the hosted admin backend for production analytics.");
+      return;
+    }
+
     const email = document.getElementById("admin-email").value.trim().toLowerCase();
     const password = document.getElementById("admin-password").value;
     const consent = document.getElementById("admin-consent").checked;
@@ -262,6 +272,23 @@ function initLoginPage() {
   });
 }
 
+function configureAdminAccessNotice(adminForm) {
+  if (!adminAccessDisabled() && ADMIN_PASSWORD) return;
+
+  const adminTab = document.querySelector("[data-auth-tab='admin']");
+  if (adminTab) {
+    adminTab.disabled = true;
+    adminTab.textContent = "Admin Disabled";
+  }
+
+  adminForm.innerHTML = `
+    <div class="release-notice">
+      <strong>Admin access is not available in this app build.</strong>
+      <span>Production admin analytics must run from a secured backend, not from credentials shipped inside the public Android app.</span>
+    </div>
+  `;
+}
+
 function setAuthError(message) {
   const el = document.getElementById("auth-error");
   if (el) el.textContent = message;
@@ -278,7 +305,7 @@ function requireAuth() {
     return;
   }
 
-  if (path === "admin.html" && user.role !== "admin") {
+  if (path === "admin.html" && (adminAccessDisabled() || user.role !== "admin")) {
     window.location.href = "dashboard.html";
   }
 }
@@ -287,7 +314,7 @@ function initAdminPage() {
   if (!document.getElementById("admin-total-logins")) return;
 
   const user = getCurrentUser();
-  if (!user || user.role !== "admin") {
+  if (adminAccessDisabled() || !user || user.role !== "admin") {
     window.location.href = "login.html";
     return;
   }
@@ -434,8 +461,7 @@ function renderBackendAdminOverview() {
       grid.innerHTML = `
         <div class="analytics-card"><span>Server Students</span><strong>${data.totals.students}</strong></div>
         <div class="analytics-card"><span>Server Activity</span><strong>${data.totals.activityEvents}</strong></div>
-        <div class="analytics-card"><span>Premium Users</span><strong>${data.totals.premiumUsers}</strong></div>
-        <div class="analytics-card"><span>Payment Orders</span><strong>${data.totals.paymentOrders}</strong></div>
+        <div class="analytics-card"><span>Free Access</span><strong>Enabled</strong></div>
       `;
     })
     .catch(function() {

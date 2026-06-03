@@ -195,7 +195,7 @@ const assistantPages = {
   reminders: {
     label: "Reminders",
     href: "reminders.html",
-    summary: "Watches tasks, exams, plans, custom reminders, and billing dates."
+    summary: "Watches tasks, exams, plans, and custom reminders."
   },
   summarizer: {
     label: "Summarizer",
@@ -378,8 +378,8 @@ function getAssistantReply(message) {
     return getNextStepAdvice(context);
   }
 
-  if (matches(text, ["premium", "upgrade", "paid", "price", "billing"])) {
-    return "StudySphere Premium is KES 250/month. It unlocks unlimited plans, notes, flashcards, files, groups, grade insights, and stronger Sage guidance.\n\nOpen: [Premium](premium.html)";
+  if (matches(text, ["paid", "price", "payment", "subscription"])) {
+    return "Everything in StudySphere is free for now. You can use planning, notes, flashcards, files, groups, grade insights, games, and Sage without a subscription.";
   }
 
   if (matches(text, ["report", "progress", "weekly", "analytics"])) {

@@ -7,7 +7,6 @@ const outDir = path.join(root, "desktop-web");
 const files = [
   "admin.html",
   "autopilot.html",
-  "billing.html",
   "calendar.html",
   "dashboard.html",
   "exam-mode.html",
@@ -22,7 +21,7 @@ const files = [
   "notes.html",
   "onboarding.html",
   "planner.html",
-  "premium.html",
+  "privacy.html",
   "profile.html",
   "reminders.html",
   "report.html",

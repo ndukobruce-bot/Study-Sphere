@@ -347,13 +347,7 @@
       date: day.date,
       type: "plan"
     })));
-    const premium = load(userKey("ss_premium"), null);
-    const billing = premium && premium.premiumExpiresAt ? [{
-      title: "Premium renewal check",
-      date: premium.premiumExpiresAt.slice(0, 10),
-      type: "billing"
-    }] : [];
-    return tasks.concat(exams, plans, billing, load("ss_custom_reminders", []))
+    return tasks.concat(exams, plans, load("ss_custom_reminders", []))
       .filter(item => item.date)
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }
