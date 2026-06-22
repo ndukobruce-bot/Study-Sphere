@@ -2177,6 +2177,35 @@ ul {
   font-weight: 700;
 }
 
+.form-status.loading {
+  color: var(--soft-blue);
+}
+
+.form-status.error {
+  color: var(--soft-rose);
+}
+
+.form-status.success {
+  color: var(--soft-green);
+}
+
+.dashboard-loading .notification-list,
+.dashboard-loading #subject-list,
+.dashboard-loading #revision-list,
+.dashboard-loading #achievement-grid,
+.dashboard-loading #analytics-grid {
+  min-height: 72px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--bg-secondary), var(--bg-card), var(--bg-secondary));
+  background-size: 220% 100%;
+  animation: dashboardSkeleton 1.1s ease-in-out infinite;
+}
+
+@keyframes dashboardSkeleton {
+  0% { background-position: 0% 0; }
+  100% { background-position: -220% 0; }
+}
+
 .smart-output-panel {
   align-content: start;
 }

@@ -2,19 +2,53 @@
 //  STUDYSPHERE - dashboard.js
 // ============================================
 
+const dashboardCache = Object.create(null);
+let dashboardEventsBound = false;
+
+function loadJson(key, fallback) {
+  if (Object.prototype.hasOwnProperty.call(dashboardCache, key)) {
+    return dashboardCache[key];
+  }
+  try {
+    dashboardCache[key] = JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch (error) {
+    dashboardCache[key] = fallback;
+  }
+  return dashboardCache[key];
+}
+
+function saveJson(key, value) {
+  dashboardCache[key] = value;
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
 function getTasks() {
-  return JSON.parse(localStorage.getItem("ss_tasks") || "[]");
+  return loadJson("ss_tasks", []);
 }
 
 function getExams() {
-  return JSON.parse(localStorage.getItem("ss_exams") || "[]");
+  return loadJson("ss_exams", []);
 }
 
 function saveExams(exams) {
-  localStorage.setItem("ss_exams", JSON.stringify(exams));
+  saveJson("ss_exams", exams);
+}
+
+function afterFirstPaint(callback) {
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(callback, { timeout: 650 });
+    return;
+  }
+  setTimeout(callback, 80);
+}
+
+function setDashboardBusy(isBusy) {
+  document.body.classList.toggle("dashboard-loading", Boolean(isBusy));
 }
 
 function loadDashboardStats() {
+  setDashboardBusy(true);
+  bindDashboardEvents();
   const tasks = getTasks();
   const completed = tasks.filter(t => t.completed).length;
   const remaining = tasks.filter(t => !t.completed).length;
@@ -28,7 +62,7 @@ function loadDashboardStats() {
   if (fillEl) fillEl.style.width = `${pct}%`;
 
   const today = new Date().toDateString();
-  const pomData = JSON.parse(localStorage.getItem("ss_pomodoros") || "{}");
+  const pomData = loadJson("ss_pomodoros", {});
   const todayPoms = pomData[today] || 0;
   const studyMins = parseInt(localStorage.getItem("ss_study_mins_today") || "0");
   const hours = Math.floor(studyMins / 60);
@@ -38,14 +72,18 @@ function loadDashboardStats() {
   setText("stat-time", `${hours}h ${mins}m`);
 
   const data = { tasks, completed, remaining, total, pct, todayPoms, studyMins };
-  renderNotifications(data);
   renderRecentTasks(tasks);
-  renderMood();
-  renderExams();
-  renderSubjects(tasks);
-  renderRevision(tasks);
-  renderAchievements(data);
-  renderAnalytics(data);
+
+  afterFirstPaint(function() {
+    renderNotifications(data);
+    renderMood();
+    renderExams();
+    renderSubjects(tasks);
+    renderRevision(tasks);
+    renderAchievements(data);
+    renderAnalytics(data);
+    setDashboardBusy(false);
+  });
 }
 
 function renderRecentTasks(tasks) {
@@ -156,7 +194,7 @@ function renderNotifications(data) {
   const readIds = JSON.parse(localStorage.getItem("ss_read_notifications") || "[]");
   const unread = notifications.filter(item => readIds.indexOf(item.id) === -1);
 
-  listEl.innerHTML = "";
+  const fragment = document.createDocumentFragment();
   notifications.forEach(item => {
     const card = document.createElement("article");
     const isRead = readIds.indexOf(item.id) !== -1;
@@ -169,18 +207,14 @@ function renderNotifications(data) {
       </div>
       <a class="notification-link" href="${item.href}">${escapeHtml(item.action)}</a>
     `;
-    listEl.appendChild(card);
+    fragment.appendChild(card);
   });
+  listEl.replaceChildren(fragment);
 
   setText("notification-count", `${unread.length} new`);
   if (subEl) subEl.textContent = unread.length > 0 ? "Fresh updates from your study tools." : "You are all caught up.";
 
-  if (clearBtn) {
-    clearBtn.onclick = function() {
-      localStorage.setItem("ss_read_notifications", JSON.stringify(notifications.map(item => item.id)));
-      renderNotifications(data);
-    };
-  }
+  if (clearBtn) clearBtn.dataset.notificationIds = JSON.stringify(notifications.map(item => item.id));
 }
 
 function renderMood() {
@@ -193,10 +227,6 @@ function renderMood() {
 
   document.querySelectorAll("#mood-options button").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.mood === mood);
-    btn.onclick = function() {
-      localStorage.setItem("ss_mood", btn.dataset.mood);
-      renderMood();
-    };
   });
 
   setText("mood-tip", tips[mood] || "Choose how you feel today.");
@@ -204,22 +234,7 @@ function renderMood() {
 
 function renderExams() {
   const list = document.getElementById("exam-list");
-  const addBtn = document.getElementById("add-exam-btn");
   if (!list) return;
-
-  if (addBtn) {
-    addBtn.onclick = function() {
-      const name = document.getElementById("exam-name").value.trim();
-      const date = document.getElementById("exam-date").value;
-      if (!name || !date) return;
-      const exams = getExams();
-      exams.push({ id: Date.now(), name, date });
-      saveExams(exams);
-      document.getElementById("exam-name").value = "";
-      document.getElementById("exam-date").value = "";
-      renderExams();
-    };
-  }
 
   const exams = getExams().sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
   list.innerHTML = exams.length === 0 ? `<p class="empty-panel">No exams added yet.</p>` : "";
@@ -230,6 +245,54 @@ function renderExams() {
     item.innerHTML = `<strong>${escapeHtml(exam.name)}</strong><span>${days < 0 ? "passed" : days + " days left"}</span>`;
     list.appendChild(item);
   });
+}
+
+function bindDashboardEvents() {
+  if (dashboardEventsBound) return;
+  dashboardEventsBound = true;
+
+  document.querySelectorAll("#mood-options button").forEach(btn => {
+    btn.addEventListener("click", function() {
+      localStorage.setItem("ss_mood", btn.dataset.mood);
+      renderMood();
+    });
+  });
+
+  const clearBtn = document.getElementById("clear-notifications");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", function() {
+      localStorage.setItem("ss_read_notifications", clearBtn.dataset.notificationIds || "[]");
+      dashboardCache.ss_read_notifications = JSON.parse(clearBtn.dataset.notificationIds || "[]");
+      const tasks = getTasks();
+      const completed = tasks.filter(t => t.completed).length;
+      renderNotifications({
+        tasks,
+        completed,
+        remaining: tasks.length - completed,
+        total: tasks.length,
+        pct: tasks.length ? Math.round((completed / tasks.length) * 100) : 0,
+        todayPoms: loadJson("ss_pomodoros", {})[new Date().toDateString()] || 0,
+        studyMins: parseInt(localStorage.getItem("ss_study_mins_today") || "0")
+      });
+    });
+  }
+
+  const addBtn = document.getElementById("add-exam-btn");
+  if (addBtn) {
+    addBtn.addEventListener("click", function() {
+      const nameInput = document.getElementById("exam-name");
+      const dateInput = document.getElementById("exam-date");
+      const name = nameInput.value.trim();
+      const date = dateInput.value;
+      if (!name || !date) return;
+      const exams = getExams();
+      exams.push({ id: Date.now(), name, date });
+      saveExams(exams);
+      nameInput.value = "";
+      dateInput.value = "";
+      renderExams();
+    });
+  }
 }
 
 function renderSubjects(tasks) {

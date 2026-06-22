@@ -10,6 +10,7 @@ const files = [
   "calendar.html",
   "dashboard.html",
   "exam-mode.html",
+  "feedback.html",
   "files.html",
   "flashcards.html",
   "game.html",

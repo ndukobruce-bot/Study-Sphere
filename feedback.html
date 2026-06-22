@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feedback - StudySphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a class="nav-logo" href="index.html">Study<span>Sphere</span></a>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="planner.html">Planner</a></li>
+      <li><a href="timer.html">Timer</a></li>
+      <li><a href="feedback.html" class="active">Feedback</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='dashboard.html'">Dashboard</button>
+  </nav>
+
+  <main class="page-wrapper feature-page">
+    <section class="page-header">
+      <p class="arcade-kicker">Feedback</p>
+      <h1>Send StudySphere a message</h1>
+      <p class="page-sub">Report a bug, suggest an improvement, or tell us what is not working. Messages are delivered to the StudySphere team.</p>
+    </section>
+
+    <section class="feature-grid two-col">
+      <form class="feature-panel feedback-form" id="feedback-form">
+        <label>
+          Your email
+          <input id="feedback-email" class="task-input" type="email" placeholder="student@university.edu" required>
+        </label>
+        <label>
+          Name
+          <input id="feedback-name" class="task-input" type="text" placeholder="Your name">
+        </label>
+        <label>
+          Message type
+          <select id="feedback-type" class="task-select">
+            <option>Bug report</option>
+            <option>Feature request</option>
+            <option>General feedback</option>
+            <option>Account or login help</option>
+          </select>
+        </label>
+        <label>
+          Message
+          <textarea id="feedback-message" class="task-input" rows="8" placeholder="Tell us what happened, what page you were on, and what device you are using." required></textarea>
+        </label>
+        <button class="btn-primary" id="feedback-submit" type="submit">Send Message</button>
+        <p class="form-status" id="feedback-status" aria-live="polite"></p>
+      </form>
+
+      <aside class="feature-panel">
+        <h2 class="section-title">What helps us fix it faster</h2>
+        <div class="feature-list">
+          <article class="feature-item">
+            <strong>Page or feature</strong>
+            <span>Dashboard, Sage, Timer, Planner, Login, Games, etc.</span>
+          </article>
+          <article class="feature-item">
+            <strong>Device details</strong>
+            <span>Phone model, Android version, browser, or desktop device.</span>
+          </article>
+          <article class="feature-item">
+            <strong>What you expected</strong>
+            <span>Tell us what should have happened and what happened instead.</span>
+          </article>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/feedback.js"></script>
+</body>
+</html>

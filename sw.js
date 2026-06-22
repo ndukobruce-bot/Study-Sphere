@@ -1,4 +1,4 @@
-const STUDYSPHERE_CACHE = "studysphere-v4";
+const STUDYSPHERE_CACHE = "studysphere-v5";
 const CORE_ASSETS = [
   "index.html",
   "login.html",
@@ -8,6 +8,7 @@ const CORE_ASSETS = [
   "reminders.html",
   "summarizer.html",
   "exam-mode.html",
+  "feedback.html",
   "report.html",
   "tasks.html",
   "timer.html",
@@ -17,6 +18,7 @@ const CORE_ASSETS = [
   "css/style.css",
   "js/app.js",
   "js/auth.js",
+  "js/feedback.js",
   "js/smart-tools.js",
   "js/landing.js",
   "manifest.json",
