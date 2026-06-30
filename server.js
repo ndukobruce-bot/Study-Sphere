@@ -160,7 +160,7 @@ app.post("/api/feedback", async (req, res) => {
     entry.deliveryStatus = "failed";
     entry.deliveryError = error.message;
     appendFeedback(entry);
-    res.status(502).json({ ok: false, error: "Message delivery failed. Please try again shortly." });
+    res.status(502).json({ ok: false, error: "Server delivery failed; browser delivery can retry with Web3Forms." });
   }
 });
 
