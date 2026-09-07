@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "StudySphere",
+    "slug": "studysphere",
+    "scheme": "studysphere",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.studysphere.app"
+    },
+    "android": {
+      "package": "com.studysphere.app",
+      "versionCode": 3,
+      "predictiveBackGestureEnabled": true,
+      "adaptiveIcon": {
+        "backgroundColor": "#070711",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": []
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "color": "#00c8ff"
+        }
+      ],
+      "expo-sharing"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
