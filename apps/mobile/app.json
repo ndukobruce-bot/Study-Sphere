@@ -36,7 +36,18 @@
           "color": "#00c8ff"
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#070711",
+          "dark": {
+            "backgroundColor": "#070711"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
