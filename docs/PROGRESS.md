@@ -121,11 +121,12 @@ assumed passing.
 
 ## Next
 
-- Store assets: feature graphic, six screenshots (needs a running app on
-  a device/emulator to capture from — blocked here), short/full
-  description text.
+- Store assets: `store/listing.md` (short/full description) and
+  `store/feature-graphic.png` are done — both achievable without a device.
+  The six screenshots are not — they need a running app on a device or
+  emulator to capture from, which this environment doesn't have.
 - `apps/mobile/scripts/screenshots/` automation script — can't be usefully
-  written until there's a device to run it against.
+  written or tested until there's a device to run it against.
 - A real device smoke test (onboarding → task → Autopilot → timer →
   summarize → export → wipe → import) — the brief's own "never report
   something as working until you have run it" rule means this genuinely

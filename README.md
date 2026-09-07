@@ -1,104 +1,78 @@
 # StudySphere
 
-StudySphere is a student productivity hub with tasks, planner, timer, notes, flashcards, grades, files, study rooms, games, Sage assistant, local auth, admin tools, Premium gating, Study Autopilot, reminders, Exam Mode, weekly reports, and installable PWA support.
+A student productivity monorepo: a website, a native Android app, a desktop
+shell, and the domain logic they share — three separate things, one set of
+rules. See `docs/AUDIT.md` for how this repo got here and `docs/PROGRESS.md`
+for current status.
 
-## Run Static Version
+## Layout
 
-Open `index.html` in a browser, or serve the folder with any static server. Static mode keeps Premium in demo/local mode only.
+```
+apps/
+  web/       the website (static HTML/CSS/JS, no build step) - deploys to Vercel as-is
+  mobile/    the native Android/iOS app (Expo + React Native + TypeScript)
+  desktop/   the Electron shell wrapping apps/web
+packages/
+  shared/    pure TypeScript domain logic used by apps/mobile (scheduling,
+             revision, timer, summarizer, Sage, date math) - fully unit
+             tested, no React, no I/O
+store/       Play Store listing assets and copy
+docs/        audit, design system, Play compliance checklist, release guide
+docs/legacy/ old Android/Play docs describing the retired Capacitor build
+```
 
-## Smart Student System
+## Working on the website (`apps/web`)
 
-- `onboarding.html` captures student setup: university, course, subjects, weak areas, exam dates, availability, and semester goal.
-- `autopilot.html` builds a full study schedule from goals, deadlines, focus areas, and daily minutes.
-- `reminders.html` combines tasks, exams, plans, custom reminders, and renewal dates into one reminder feed.
-- `summarizer.html` turns pasted notes into summaries, keywords, revision checklists, quiz questions, and flashcards.
-- `exam-mode.html` creates exam revision sprints and mock questions.
-- `groups.html` works as Study Rooms with members, session goals, links, and shared notes.
-- `report.html` generates a weekly progress report from local study activity.
-
-## Installable App
-
-The app includes `manifest.json`, `sw.js`, and an SVG app icon. When served over `localhost` or HTTPS, browsers that support PWAs can install StudySphere like an app.
-
-## Run With Pesapal Backend
-
-1. Install dependencies:
+No build step. Serve the folder with anything:
 
 ```bash
-npm install
+cd apps/web
+npm run dev   # npx serve . -l 4242
 ```
 
-2. Copy environment settings:
+The old Express backend (`server.js`) and its unauthenticated data
+endpoints were removed — see `docs/AUDIT.md`'s security triage for why.
+The site is fully static and always has been in production (Vercel never
+ran the old server); nothing about how the site behaves changed.
+
+## Working on the mobile app (`apps/mobile`)
 
 ```bash
-copy .env.example .env
+pnpm install          # from the repo root
+cd apps/mobile
+npm start             # expo start
 ```
 
-3. Add your Pesapal credentials to `.env`:
+Zero backend, zero accounts by design — every task, plan, note, and
+flashcard lives in an on-device SQLite database (`src/db/`). Settings has
+export/import for moving to a new phone. See `docs/DESIGN.md` for the
+design system and `docs/PLAY_CHECKLIST.md` / `docs/RELEASE.md` before
+shipping a build.
 
-```env
-PESAPAL_ENV=sandbox
-PESAPAL_CONSUMER_KEY=your_consumer_key
-PESAPAL_CONSUMER_SECRET=your_consumer_secret
-PESAPAL_IPN_ID=your_registered_ipn_id
-PREMIUM_PRICE_AMOUNT=250
-PREMIUM_PRICE_CURRENCY=KES
-APP_URL=http://localhost:4242
-```
-
-4. Start the app:
+## Working on shared logic (`packages/shared`)
 
 ```bash
-npm start
+cd packages/shared
+npm test        # vitest
+npm run typecheck
 ```
 
-5. Open:
+If you're changing scheduling, revision spacing, the timer, or Sage's
+advice, it lives here — not duplicated in `apps/mobile`.
 
-```text
-http://localhost:4242
+## Working on the desktop shell (`apps/desktop`)
+
+```bash
+cd apps/desktop
+npm run dev              # packages apps/web into an Electron window
+npm run windows:installer
 ```
 
-## Pesapal IPN Setup
+## Security
 
-Pesapal API 3.0 requires an IPN ID when submitting an order. Register your public backend URL with Pesapal:
-
-```text
-https://your-domain.com/api/pesapal-ipn
-```
-
-Use `POST` as the IPN notification method. Put the returned IPN ID in `.env` as:
-
-```env
-PESAPAL_IPN_ID=...
-```
-
-For local development, `localhost` cannot receive Pesapal IPNs. Use a deployed URL or a secure tunnel, then set `APP_URL` to that public URL.
-
-## Premium Payment Flow
-
-- `POST /api/create-pesapal-order` creates a Pesapal checkout order.
-- `/api/pesapal-callback` checks payment status after the student returns from Pesapal.
-- `/api/pesapal-ipn` verifies payment status from Pesapal notifications.
-- `GET /api/premium-status?email=student@example.com` returns server-side Premium status.
-
-Completed payments activate StudySphere Premium for one month at `KES 250/month`.
-
-## Backend Data Foundation
-
-When the Express backend is running, local login events can sync to:
-
-```text
-POST /api/db/sync
-GET /api/db/student/:email
-GET /api/db/admin/overview
-POST /api/db/payment-event
-```
-
-Data is stored in `data/studysphere-db.json` for development. This is a stepping stone before moving to a production database.
-
-## Important Security Notes
-
-- Do not commit `.env`.
-- Pesapal consumer secrets must stay on the server.
-- The current student login is still local/demo auth. Production accounts should move to a real backend database and password hashing.
-- Server-side Premium status and the development database are stored as JSON files in `data/`. A production app should use a managed database.
+No secret, API key, or user record should ever exist in anything a client
+downloads. `apps/mobile` has no server calls at all in v1. If a server is
+added later (accounts, sync — queued for v1.1 per `docs/PROGRESS.md`), it
+must not live inside whatever directory gets deployed as `apps/web`'s
+static content — see `docs/AUDIT.md`'s finding on `server.js` having been
+publicly downloadable from the old deployment.
