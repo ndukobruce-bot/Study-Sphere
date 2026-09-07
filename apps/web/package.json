@@ -1,0 +1,9 @@
+{
+  "name": "@studysphere/web",
+  "version": "1.0.1",
+  "private": true,
+  "description": "StudySphere website — static HTML/CSS/JS, no build step. Deployed to Vercel as-is.",
+  "scripts": {
+    "dev": "npx --yes serve . -l 4242"
+  }
+}

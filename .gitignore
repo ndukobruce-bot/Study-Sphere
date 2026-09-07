@@ -1,13 +1,43 @@
+# Dependencies
 node_modules/
+
+# Environment
 .env
-data/
-*.log
+.env.local
+*.env.local
+
+# Build output — nothing built gets committed, anywhere in the monorepo
+dist/
+build/
+.expo/
+.turbo/
+apps/desktop/desktop-web/
+apps/desktop/dist/
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/.expo/
+
+# Android/EAS signing — never commit keys
+*.jks
+*.keystore
+keystore.properties
+local.properties
+credentials.json
+
+# Electron caches
 .electron-cache/
 .electron-builder-cache/
-.android-build/
-mobile-web/
-desktop-web/
-dist/
-android/local.properties
-android/keystore.properties
-android/*.jks
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Test coverage
+coverage/
