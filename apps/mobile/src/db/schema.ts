@@ -1,10 +1,18 @@
-import type { SQLiteDatabase } from "expo-sqlite";
+import type { Database } from "./types";
 
 /**
- * Every table StudySphere needs, in one migration. There are no accounts
- * and no server (see docs/AUDIT.md, docs/PROGRESS.md decision 1), so this
- * database is the entire app's data — which is also exactly what Settings'
- * export/import round-trips (see src/db/backup.ts).
+ * Every table StudySphere needs, plus every migration since. There are no
+ * accounts and no server (see docs/AUDIT.md, docs/PROGRESS.md decision 1),
+ * so this database is the entire app's data — which is also exactly what
+ * Settings' export/import round-trips (see src/db/backup.ts).
+ *
+ * MIGRATIONS[i] is applied when a device's PRAGMA user_version === i, then
+ * user_version is bumped to i+1. Never edit an already-shipped entry —
+ * append a new one, even for something as small as an index, so devices
+ * that already ran migration 0 don't lose data or re-run DDL that assumes
+ * a pristine database. src/db/__tests__/schema.test.ts proves this harness
+ * works with a real (if trivial) two-version upgrade, not just migration 0
+ * on a fresh install.
  */
 const MIGRATIONS: string[] = [
   `
@@ -94,10 +102,13 @@ const MIGRATIONS: string[] = [
     day TEXT PRIMARY KEY NOT NULL,
     mood TEXT NOT NULL
   );
-  `
+  `,
+  // Migration 1: index the column Home/Tasks/notifications filter and sort
+  // by most often. Additive and safe to run against an existing database.
+  `CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);`
 ];
 
-export async function runMigrations(db: SQLiteDatabase): Promise<void> {
+export async function runMigrations(db: Database): Promise<void> {
   const result = await db.getFirstAsync<{ user_version: number }>("PRAGMA user_version");
   let version = result?.user_version ?? 0;
 

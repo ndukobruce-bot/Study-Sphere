@@ -10,11 +10,11 @@ import {
   type TimerState
 } from "@studysphere/shared";
 import * as Haptics from "expo-haptics";
-import * as Notifications from "expo-notifications";
 import React, { useEffect, useRef, useState } from "react";
 import { AppState, Pressable, View } from "react-native";
 import { Button, Card, Muted, Screen, Text } from "../../src/components/ui";
 import { recordCompletedSession } from "../../src/db/repositories/pomodoro";
+import { notificationsFacade } from "../../src/notifications/platform";
 import { useTheme } from "../../src/theme/ThemeProvider";
 
 const MODES: TimerMode[] = ["study", "short", "long"];
@@ -22,23 +22,23 @@ let sessionNotificationId: string | null = null;
 
 async function scheduleSessionEndNotice(mode: TimerMode, secondsLeft: number) {
   if (sessionNotificationId) {
-    await Notifications.cancelScheduledNotificationAsync(sessionNotificationId).catch(() => {});
+    await notificationsFacade.cancelScheduledNotificationAsync(sessionNotificationId);
     sessionNotificationId = null;
   }
-  const granted = await Notifications.getPermissionsAsync();
+  const granted = await notificationsFacade.getPermissionsAsync();
   if (!granted.granted) return;
-  sessionNotificationId = await Notifications.scheduleNotificationAsync({
+  sessionNotificationId = await notificationsFacade.scheduleNotificationAsync({
     content: {
       title: mode === "study" ? "Focus session complete" : "Break over",
       body: mode === "study" ? "Time for a break." : "Ready for another session?"
     },
-    trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: Math.max(1, secondsLeft) }
+    trigger: { type: "timeInterval", seconds: Math.max(1, secondsLeft) }
   });
 }
 
 async function cancelSessionEndNotice() {
   if (!sessionNotificationId) return;
-  await Notifications.cancelScheduledNotificationAsync(sessionNotificationId).catch(() => {});
+  await notificationsFacade.cancelScheduledNotificationAsync(sessionNotificationId);
   sessionNotificationId = null;
 }
 

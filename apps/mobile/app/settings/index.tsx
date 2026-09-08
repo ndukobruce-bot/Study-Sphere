@@ -1,3 +1,4 @@
+import * as Linking from "expo-linking";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Alert, Pressable, View } from "react-native";
@@ -5,7 +6,11 @@ import { Button, Card, Input, Muted, Screen, Text } from "../../src/components/u
 import { wipeAllData } from "../../src/db/backup";
 import { exportToFile, importFromFile } from "../../src/db/fileIO";
 import { getProfile, saveProfile, type Profile } from "../../src/db/repositories/profile";
-import { requestNotificationPermission } from "../../src/notifications/scheduler";
+import {
+  getNotificationPermissionState,
+  requestNotificationPermission,
+  type NotificationPermissionState
+} from "../../src/notifications/scheduler";
 import { usePreferencesStore } from "../../src/store/preferencesStore";
 import type { ThemePreference } from "../../src/store/preferencesStore";
 import { useTheme } from "../../src/theme/ThemeProvider";
@@ -18,16 +23,25 @@ export default function Settings() {
   const { themePreference, setThemePreference, notificationsEnabled, setNotificationsEnabled } = usePreferencesStore();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [busy, setBusy] = useState(false);
+  const [permissionState, setPermissionState] = useState<NotificationPermissionState>("undetermined");
 
-  useFocusEffect(useCallback(() => { getProfile().then(setProfile); }, []));
+  useFocusEffect(useCallback(() => {
+    getProfile().then(setProfile);
+    getNotificationPermissionState().then(setPermissionState);
+  }, []));
+
+  // If the OS-level permission was denied (whether just now or in a
+  // previous session), asking again silently fails every time - the old
+  // web app's "Enable Alerts" button had exactly this dead-button problem.
+  // Route to system settings instead of re-prompting.
+  const systemBlocked = permissionState === "denied";
 
   async function toggleNotifications(value: boolean) {
     if (value) {
       const granted = await requestNotificationPermission();
-      if (!granted) {
-        Alert.alert("Notifications blocked", "Enable notifications for StudySphere in your phone's settings to use deadline reminders.");
-        return;
-      }
+      const state = await getNotificationPermissionState();
+      setPermissionState(state);
+      if (!granted) return; // UI below shows the "blocked by system" state instead of an alert
     }
     setNotificationsEnabled(value);
   }
@@ -107,16 +121,26 @@ export default function Settings() {
         </View>
       </Card>
 
-      <Card style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <View>
-          <Text variant="title">Deadline reminders</Text>
-          <Muted>A notification at 9am on the day a task is due.</Muted>
+      <Card style={{ gap: theme.spacing.sm }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <View style={{ flex: 1 }}>
+            <Text variant="title">Deadline reminders</Text>
+            <Muted>A notification at 9am on the day a task is due.</Muted>
+          </View>
+          {!systemBlocked && (
+            <Button
+              label={notificationsEnabled ? "On" : "Off"}
+              variant={notificationsEnabled ? "primary" : "outline"}
+              onPress={() => toggleNotifications(!notificationsEnabled)}
+            />
+          )}
         </View>
-        <Button
-          label={notificationsEnabled ? "On" : "Off"}
-          variant={notificationsEnabled ? "primary" : "outline"}
-          onPress={() => toggleNotifications(!notificationsEnabled)}
-        />
+        {systemBlocked && (
+          <>
+            <Muted>Blocked in your phone's system settings. StudySphere can't ask again — turn it on there instead.</Muted>
+            <Button label="Open system settings" variant="outline" onPress={() => Linking.openSettings()} />
+          </>
+        )}
       </Card>
 
       {profile && (

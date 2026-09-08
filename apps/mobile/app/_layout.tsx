@@ -1,19 +1,14 @@
 import { Stack } from "expo-router";
-import * as Notifications from "expo-notifications";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { getDb } from "../src/db/client";
+import { listTasks } from "../src/db/repositories/tasks";
 import { touchStreak } from "../src/db/repositories/streak";
+import { rescheduleAllPendingReminders } from "../src/notifications/scheduler";
+import { notificationsFacade } from "../src/notifications/platform";
 import { ThemeProvider, useTheme } from "../src/theme/ThemeProvider";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false
-  })
-});
+notificationsFacade.setNotificationHandler();
 
 function BootGate({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
@@ -23,6 +18,8 @@ function BootGate({ children }: { children: React.ReactNode }) {
     (async () => {
       await getDb();
       await touchStreak();
+      const tasks = await listTasks();
+      await rescheduleAllPendingReminders(tasks);
       setReady(true);
     })();
   }, []);

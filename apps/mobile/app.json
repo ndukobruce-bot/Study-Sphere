@@ -47,7 +47,8 @@
             "backgroundColor": "#070711"
           }
         }
-      ]
+      ],
+      "./plugins/withMinimalPermissions"
     ],
     "experiments": {
       "typedRoutes": true
