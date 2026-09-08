@@ -4,6 +4,7 @@
     "slug": "studysphere",
     "scheme": "studysphere",
     "version": "2.0.0",
+    "owner": "tijalabs",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -52,6 +53,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8e08dda4-da8e-499d-82eb-1034e10ac190"
+      }
     }
   }
 }
