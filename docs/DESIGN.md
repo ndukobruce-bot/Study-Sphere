@@ -9,23 +9,47 @@ appears outside that file.
 
 | Token | Dark (default) | Light |
 |---|---|---|
-| `ink` (base background) | `#070711` | `#F4F6FB` (`paper`) |
+| `ink` (base background) | `#070711` | `#F4F6FB` |
 | `slate` (raised surface / card) | `#12121F` | `#FFFFFF` |
 | `line` (border/divider) | `#232336` | `#DDE1EC` |
-| `cyan` (accent — the one bold element) | `#00C8FF` | `#0090BC` (darkened for AA on white) |
+| `cyan` (accent fill — buttons, rings, selected pills) | `#00C8FF` | `#0090BC` |
 | `mist` (secondary text) | `#A9AEC4` | `#5B6178` |
-| `paper` (primary text) | `#F4F6FB` | `#0B0B14` (near-`ink`, not pure black) |
+| `paper` (primary text) | `#F4F6FB` | `#0B0B14` |
+| `overdue` (the one status color) | `#F04438` | `#C4281C` |
+| `onAccent` (text/icons ON a cyan fill) | `#070711` | `#0B0B14` |
+| `accentText` (cyan used AS small/normal text, not a fill) | `#00C8FF` | `#007AA0` |
+
+`onAccent` and `accentText` exist because a single "use `ink` on cyan, `cyan`
+on the page" rule silently fails WCAG AA in one theme or the other — see the
+contrast table below. Both were found and fixed by actually computing every
+pairing the app uses, not by eyeballing the palette; see docs/PROGRESS.md.
 
 Rule: **the accent color does work in exactly one place per screen** — the
 primary action, or the single most important number. Everything else is
 grayscale. This directly answers the brief's "spend boldness in one place."
 
+### Contrast, computed (WCAG 2.1 relative-luminance formula)
+
+Normal/small text needs ≥4.5:1, large text (≥24px, or ≥19px bold) and UI
+components need ≥3:1. Every ratio below was computed from the actual hex
+values above, not estimated:
+
+| Pairing | Dark | Light | Passes |
+|---|---|---|---|
+| `paper` on `ink` (body text) | 18.54 | 18.11 | ✅ both |
+| `paper` on `slate` (card text) | 17.16 | 19.59 | ✅ both |
+| `mist` on `ink`/`slate` (secondary text) | 9.11 / 8.43 | 5.67 / 6.13 | ✅ both |
+| `onAccent` on `cyan` (button/pill labels) | 10.22 | 5.33 | ✅ both — this is why `onAccent` exists; naively using `ink` on cyan gives only **3.40** in light theme (fails normal-text AA) |
+| `accentText` on `ink` (small "due today" label) | 10.22 | 4.53 | ✅ both — plain `cyan` as text only reaches **3.40** in light theme |
+| `overdue` on `ink`/`slate` | 5.34 / 4.94 | 5.30 / 5.73 | ✅ both — the original light-theme red (`#D92D20`) measured 4.47, just under 4.5; darkened to `#C4281C` |
+| `cyan` on `ink` (large 32px streak number only) | 10.22 | 3.40 | ✅ both for **large text only** (≥3:1) — do not reuse this pairing for small text, use `accentText` instead |
+
 ### Deadline urgency — the only other place color carries meaning
 
 | Bucket | Color |
 |---|---|
-| Overdue | `#F04438` (red) |
-| Today | `cyan` accent |
+| Overdue | `overdue` token |
+| Today | `accentText` (small text) / `cyan` (large text only) |
 | This week | `mist` with a subtle `line` chip background |
 | Later | `mist`, no chip |
 

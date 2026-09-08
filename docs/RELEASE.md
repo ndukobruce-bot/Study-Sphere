@@ -5,6 +5,48 @@ emulator, and no connected device (see docs/PROGRESS.md). Every command
 below is exact and ready to run, but none of them have been run here —
 run them yourself from `apps/mobile/`.
 
+## Cold start — the whole sequence, copy-paste
+
+Every step here is explained in detail further down; this is the same
+sequence with no prose in between, for when you already know what each
+step does. Run from the repo root unless a line says otherwise.
+
+```bash
+# 0. Archive check (should already exist from this session — confirm, don't skip)
+ls ../studysphere-backup/keystore/studysphere-upload.jks
+
+# 1. Confirm versionCode in Play Console manually first (see step 1 below),
+#    then edit apps/mobile/app.json's android.versionCode if needed.
+
+# 2. Link the existing upload key to EAS
+cd apps/mobile
+eas login
+eas credentials    # Android -> upload an existing keystore -> point at
+                    # ../studysphere-backup/keystore/studysphere-upload.jks
+
+# 3. Build
+eas build --profile production --platform android
+
+# 4. Verify the build (after downloading the .aab EAS links you to)
+unzip -l app.aab | head -50
+mkdir -p aab-inspect && cd aab-inspect && unzip -o ../app.aab
+grep -riE "pesapal|password|api[_-]?key|token|@gmail|web3forms" -r base/ || echo "clean"
+cd ..
+
+# 5. Push to the closed testing track (edit eas.json's submit track first — see step 5 below)
+eas submit --profile production --platform android
+
+# 6. Capture real store screenshots once the build is installed on a device/emulator
+cd ../../scripts/screenshots
+npm install
+maestro test seed-and-capture.yaml
+node compose-frames.js
+
+# 7. Run the smoke flow on the same device
+cd ../../apps/mobile
+maestro test .maestro/smoke-flow.yaml
+```
+
 ## 0. Before you touch anything
 
 Copy `../studysphere-backup/keystore/` (created during this session,
@@ -80,10 +122,13 @@ manually through the Play Console UI, same as the previous release.
 - Confirm `apps/web/privacy.html` is live at
   `https://www.studysphere.it.com/privacy.html` (it already is — this repo
   didn't change the deploy target, only the content).
-- Smoke test on a real device: onboarding → add a task → generate an
-  Autopilot plan → run a focus session → summarize a note → export data →
-  delete all data → import it back. This has not been done by anyone yet;
-  do it before applying for production.
+- Smoke test on a real device: `maestro test apps/mobile/.maestro/smoke-flow.yaml`
+  covers onboarding → add a task → generate a schedule → run a focus
+  session → complete a task (swipe) → export → wipe → import → verify
+  state. Written against the real, verified screen text from manually
+  driving the app during this build pass — but never actually run against
+  a device, since none exists in this environment. Run it for real before
+  trusting it, and expect to fix a selector or two on the first pass.
 - Once the pre-launch report comes back clean and you're satisfied with
   the manual smoke test, apply for production access the same way you did
   for the original closed testing round (see docs/legacy/

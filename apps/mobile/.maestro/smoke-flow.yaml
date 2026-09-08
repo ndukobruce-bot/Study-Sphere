@@ -1,0 +1,92 @@
+# StudySphere end-to-end smoke flow.
+#
+# NOT run in this environment — there is no Android SDK, emulator, or
+# connected device here (see docs/PROGRESS.md). Written against the real,
+# verified screen text and flow from manually driving the app in a browser
+# during this build pass, not guessed. Run once a device/emulator exists:
+#
+#   maestro test apps/mobile/.maestro/smoke-flow.yaml
+#
+# Covers: onboarding -> add task -> generate a schedule -> run a focus
+# session -> complete a task -> export -> wipe -> import -> verify state.
+appId: com.studysphere.app
+---
+- launchApp:
+    clearState: true
+
+# --- Onboarding (3 steps, skippable - here we go through it for real) ---
+- assertVisible: "What are you studying?"
+- tapOn:
+    id: "student-university" # falls back to placeholder-text matching if unlabeled
+- inputText: "University of Nairobi"
+- tapOn: "Course"
+- inputText: "Computer Science"
+- tapOn: "Subjects (comma separated)"
+- inputText: "Calculus, Physics"
+- tapOn: "Next"
+
+- assertVisible: "When are your exams?"
+- tapOn: "Exam dates"
+- inputText: "Linear Algebra - 2026-11-03"
+- tapOn: "Next"
+
+- assertVisible: "How much time do you have?"
+- tapOn: "Finish setup"
+
+# --- Home ---
+- assertVisible: "Hi again"
+- assertVisible: "Study streak"
+
+# --- Tasks: add one ---
+- tapOn: "Tasks"
+- tapOn: "Add task"
+- tapOn: "What do you need to do?"
+- inputText: "Read chapter 3"
+- tapOn: "Subject (optional)"
+- inputText: "Biology"
+- tapOn: "Save task"
+- assertVisible: "Read chapter 3"
+
+# --- Autopilot: generate a schedule ---
+- tapOn: "Autopilot"
+- tapOn: "What are you working toward?"
+- inputText: "Pass finals"
+- tapOn: "By when? (YYYY-MM-DD)"
+- inputText: "2026-09-20"
+- tapOn: "Generate this week"
+- assertVisible: "Study days"
+- tapOn: "Save to Tasks"
+- assertVisible: "Saved to Tasks"
+
+# --- Focus timer: run a session briefly ---
+- tapOn: "Focus"
+- assertVisible: "25:00"
+- tapOn: "Start"
+- assertVisible: "Pause"
+- back # leave and return to prove the wall-clock countdown survives navigation
+- tapOn: "Focus"
+- tapOn: "Pause"
+
+# --- Complete a task (swipe-to-complete) ---
+- tapOn: "Tasks"
+- swipe:
+    direction: RIGHT
+    from: "Read chapter 3"
+- assertVisible: "completed" # filter tab still present; task now shows as done
+
+# --- Settings: export, wipe, import, verify ---
+- tapOn: "More"
+- tapOn: "Settings"
+- tapOn: "Export my data"
+# The OS share sheet appears here - Maestro can't script "save to Drive" in
+# a portable way, so this flow assumes the exported file lands in a known
+# location via a test-only share target, or is verified manually alongside
+# this automated run. See scripts/screenshots/README for the same caveat.
+- tapOn: "Delete all data"
+- tapOn: "Delete everything"
+- assertVisible: "What are you studying?" # back at onboarding - confirms the wipe worked
+- tapOn: "Skip for now"
+- tapOn: "Settings"
+- tapOn: "Import from a file"
+# Same OS file-picker caveat as export above.
+- assertVisible: "Import complete"

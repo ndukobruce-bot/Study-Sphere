@@ -7,6 +7,7 @@ import { getProfile } from "../../src/db/repositories/profile";
 import { usePlansStore } from "../../src/store/plansStore";
 import { useTasksStore } from "../../src/store/tasksStore";
 import { useTheme } from "../../src/theme/ThemeProvider";
+import { MIN_TOUCH_TARGET } from "../../src/theme/tokens";
 
 const ENERGY_LEVELS: EnergyLevel[] = ["low", "medium", "high"];
 
@@ -78,8 +79,12 @@ export default function Autopilot() {
                 key={level}
                 onPress={() => setEnergy(level)}
                 accessibilityRole="button"
+                accessibilityLabel={`Energy: ${level}`}
+                accessibilityState={{ selected: energy === level }}
                 style={{
                   flex: 1,
+                  minHeight: MIN_TOUCH_TARGET,
+                  justifyContent: "center",
                   paddingVertical: theme.spacing.sm,
                   borderRadius: theme.radius.pill,
                   alignItems: "center",
@@ -88,7 +93,7 @@ export default function Autopilot() {
                   borderColor: theme.colors.line
                 }}
               >
-                <Text variant="label" color={energy === level ? theme.colors.ink : theme.colors.paper}>{level}</Text>
+                <Text variant="label" color={energy === level ? theme.colors.onAccent : theme.colors.paper}>{level}</Text>
               </Pressable>
             ))}
           </View>

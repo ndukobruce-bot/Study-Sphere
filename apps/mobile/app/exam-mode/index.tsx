@@ -7,6 +7,7 @@ import { saveExamSprint } from "../../src/db/repositories/examSprints";
 import { useExamsStore } from "../../src/store/examsStore";
 import { useTasksStore } from "../../src/store/tasksStore";
 import { useTheme } from "../../src/theme/ThemeProvider";
+import { MIN_TOUCH_TARGET } from "../../src/theme/tokens";
 
 export default function ExamMode() {
   const theme = useTheme();
@@ -64,7 +65,12 @@ export default function ExamMode() {
               <Pressable
                 key={exam.id}
                 onPress={() => setSelectedExamId(exam.id === selectedExamId ? null : exam.id)}
+                accessibilityRole="button"
+                accessibilityLabel={`${exam.name}, ${exam.date}`}
+                accessibilityState={{ selected: selectedExamId === exam.id }}
                 style={{
+                  minHeight: MIN_TOUCH_TARGET,
+                  justifyContent: "center",
                   paddingVertical: theme.spacing.sm,
                   paddingHorizontal: theme.spacing.md,
                   borderRadius: theme.radius.pill,
@@ -73,7 +79,7 @@ export default function ExamMode() {
                   borderColor: theme.colors.line
                 }}
               >
-                <Text variant="label" color={selectedExamId === exam.id ? theme.colors.ink : theme.colors.paper}>
+                <Text variant="label" color={selectedExamId === exam.id ? theme.colors.onAccent : theme.colors.paper}>
                   {exam.name} · {exam.date}
                 </Text>
               </Pressable>
@@ -99,17 +105,22 @@ export default function ExamMode() {
               <Pressable
                 key={value}
                 onPress={() => setConfidence(value)}
+                accessibilityRole="button"
+                accessibilityLabel={`Confidence ${value} percent`}
+                accessibilityState={{ selected: confidence === value }}
                 style={{
                   flex: 1,
+                  minHeight: MIN_TOUCH_TARGET,
                   paddingVertical: theme.spacing.sm,
                   borderRadius: theme.radius.pill,
                   alignItems: "center",
+                  justifyContent: "center",
                   backgroundColor: confidence === value ? theme.colors.cyan : "transparent",
                   borderWidth: 1,
                   borderColor: theme.colors.line
                 }}
               >
-                <Text variant="label" color={confidence === value ? theme.colors.ink : theme.colors.paper}>{value}%</Text>
+                <Text variant="label" color={confidence === value ? theme.colors.onAccent : theme.colors.paper}>{value}%</Text>
               </Pressable>
             ))}
           </View>
@@ -122,7 +133,7 @@ export default function ExamMode() {
           <Card style={{ flexDirection: "row", justifyContent: "space-between" }}>
             <View>
               <Muted>{sprint.exam.name}</Muted>
-              <Text variant="title" color={theme.colors.cyan}>{sprint.daysLeft} days left</Text>
+              <Text variant="title" color={theme.colors.accentText}>{sprint.daysLeft} days left</Text>
             </View>
           </Card>
           <Card>

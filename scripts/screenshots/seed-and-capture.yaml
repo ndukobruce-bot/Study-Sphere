@@ -1,0 +1,91 @@
+# Seeds realistic demo data through the app's own UI, then captures the
+# six listing screenshots in store/listing.md's order. Screenshots are
+# saved by Maestro into the directory it's run from — pass --format or
+# check `maestro test --help` for the current output-path flag, since this
+# has shifted between Maestro versions and wasn't confirmed here.
+appId: com.studysphere.app
+---
+- launchApp:
+    clearState: true
+
+# --- Seed: onboarding with realistic values ---
+- tapOn: "University"
+- inputText: "University of Nairobi"
+- tapOn: "Course"
+- inputText: "Computer Science, Year 2"
+- tapOn: "Subjects (comma separated)"
+- inputText: "Calculus, Physics, Data Structures"
+- tapOn: "Next"
+- tapOn: "Exam dates"
+- inputText: |
+    Calculus - 2026-11-03
+    Data Structures - 2026-11-10
+- tapOn: "Next"
+- tapOn: "Minutes per study day"
+- inputText: "120"
+- tapOn: "This semester's goal"
+- inputText: "Finish the semester with no late submissions"
+- tapOn: "Finish setup"
+
+# --- Seed: a few realistic tasks ---
+- tapOn: "Tasks"
+- tapOn: "Add task"
+- tapOn: "What do you need to do?"
+- inputText: "Finish problem set 4"
+- tapOn: "Subject (optional)"
+- inputText: "Calculus"
+- tapOn: "Due date (YYYY-MM-DD, optional)"
+- inputText: "2026-09-10"
+- tapOn: "Save task"
+- tapOn: "Add task"
+- tapOn: "What do you need to do?"
+- inputText: "Read chapter 6"
+- tapOn: "Subject (optional)"
+- inputText: "Data Structures"
+- tapOn: "Save task"
+
+# --- 03: Tasks ---
+- takeScreenshot: "03-tasks"
+
+# --- 01: Autopilot ---
+- tapOn: "Autopilot"
+- tapOn: "What are you working toward?"
+- inputText: "Pass the midterm"
+- tapOn: "By when? (YYYY-MM-DD)"
+- inputText: "2026-09-20"
+- tapOn: "Focus on (comma separated)"
+- inputText: "Calculus, Physics"
+- tapOn: "Generate this week"
+- takeScreenshot: "01-autopilot"
+- tapOn: "Save to Tasks"
+
+# --- 02: Home (now has real deadlines + a plan, so Sage has something to say) ---
+- tapOn: "Home"
+- takeScreenshot: "02-home"
+
+# --- 04: Focus ---
+- tapOn: "Focus"
+- tapOn: "Start"
+- takeScreenshot: "04-focus"
+- tapOn: "Pause"
+
+# --- 05: Summarizer ---
+- tapOn: "More"
+- tapOn: "Notes & Summarizer"
+- tapOn: "Paste your raw notes here"
+- inputText: |
+    Mitochondria are the powerhouse of the cell because mitochondria generate
+    ATP through respiration. Respiration inside mitochondria converts glucose
+    and oxygen into usable energy for the cell. Ribosomes inside the cell
+    translate messenger RNA into functional proteins for the organism.
+- tapOn: "Summarize"
+- takeScreenshot: "05-summarizer"
+- back
+
+# --- 06: Exam mode ---
+- tapOn: "Exam Mode"
+- tapOn: "Calculus · 2026-11-03"
+- tapOn: "Topics (comma separated)"
+- inputText: "Limits, Derivatives, Integrals"
+- tapOn: "Build today's sprint"
+- takeScreenshot: "06-exam-mode"

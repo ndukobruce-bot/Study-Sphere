@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { getDb } from "../src/db/client";
 import { listTasks } from "../src/db/repositories/tasks";
 import { touchStreak } from "../src/db/repositories/streak";
@@ -36,19 +37,21 @@ function BootGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <BootGate>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="onboarding/index" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="notes/index" options={{ headerShown: true, title: "Notes & Summarizer" }} />
-          <Stack.Screen name="flashcards/index" options={{ headerShown: true, title: "Flashcards" }} />
-          <Stack.Screen name="exam-mode/index" options={{ headerShown: true, title: "Exam Mode" }} />
-          <Stack.Screen name="sage/index" options={{ headerShown: true, title: "Sage" }} />
-          <Stack.Screen name="settings/index" options={{ headerShown: true, title: "Settings" }} />
-        </Stack>
-      </BootGate>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <BootGate>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="onboarding/index" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="notes/index" options={{ headerShown: true, title: "Notes & Summarizer" }} />
+            <Stack.Screen name="flashcards/index" options={{ headerShown: true, title: "Flashcards" }} />
+            <Stack.Screen name="exam-mode/index" options={{ headerShown: true, title: "Exam Mode" }} />
+            <Stack.Screen name="sage/index" options={{ headerShown: true, title: "Sage" }} />
+            <Stack.Screen name="settings/index" options={{ headerShown: true, title: "Settings" }} />
+          </Stack>
+        </BootGate>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

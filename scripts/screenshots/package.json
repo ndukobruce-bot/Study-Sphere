@@ -1,0 +1,12 @@
+{
+  "name": "studysphere-screenshots",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Store screenshot capture + compositing pipeline. See README.md.",
+  "scripts": {
+    "compose": "node compose-frames.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.0"
+  }
+}

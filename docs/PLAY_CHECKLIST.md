@@ -61,21 +61,54 @@ device, none of which exist in this environment (see docs/PROGRESS.md).
   requires `eas build --profile production` and unzipping the resulting
   `.aab`.
 
-## Foreground service
+## Foreground service — final decision, stated plainly
 
-- **Deviation, documented, not silently skipped.** The Focus timer does
-  **not** use a true Android foreground service. Implementing one correctly
-  needs a custom native module or config plugin beyond what stock Expo
-  modules provide out of the box — bigger scope than this pass. Instead:
-  the countdown is derived from a stored end-timestamp (survives the JS
-  timer being suspended in the background) and a local notification is
-  scheduled for session-end via `expo-notifications`, so the user is still
-  alerted when a session finishes even while backgrounded. This is a
-  real, working fallback, not a stub — but it is not the persistent
-  live-countdown notification a true foreground service would show, and no
-  `FOREGROUND_SERVICE` permission or service type is declared because none
-  is implemented. If Play's minimum-functionality review flags this,
-  the next step is `expo-task-manager` + a custom dev client.
+**No true Android foreground service in this build.** A real one needs a
+custom native module or config plugin (a Kotlin/Java service class) beyond
+what stock Expo modules provide, cannot be verified without a physical
+device and a dev client build, and is a materially bigger scope than the
+rest of this pass. This is a decided scope cut, not an oversight — the
+store listing does not claim persistent background tracking, and the copy
+in `store/listing.md` was written to stay true regardless ("keeps accurate
+time even if you switch apps or lock your phone" — true — not "shows a
+live countdown in your notification shade while backgrounded" — not true).
+
+**What actually happens, verified by running it (not assumed):**
+
+1. While the app process stays alive in the background (screen off, home
+   button, switching apps briefly), the countdown is derived from a stored
+   end-timestamp, not a fragile per-tick counter — confirmed correct after
+   resuming from the background in the browser test run.
+2. **A second, more serious failure mode exists and is now handled:**
+   Android can kill the whole app process during a long session (memory
+   pressure, aggressive per-OEM battery optimization — Samsung/Xiaomi/etc.
+   are known for this), not just suspend the JS thread. Without
+   persistence, that would silently discard the in-progress session —
+   reopening the app would show a fresh "Study Time 25:00," not an
+   inaccurate one. **Found by actually testing a full page reload
+   mid-session** (the closest simulation available without a device: a
+   full reload destroys all in-memory JS state exactly like a process
+   kill does) — the timer had no persistence and would have reset. Fixed:
+   `apps/mobile/app/(tabs)/timer.tsx` now persists the running timer state
+   to MMKV on every change and restores + resyncs it from the wall clock
+   on mount, including correctly advancing the mode/session counters if a
+   session fully completed while the process was dead. Verified twice:
+   once with a real ~4-second in-progress session surviving a full reload
+   (resumed at the correct remaining time, button correctly showed
+   "Pause"), and once with an injected already-elapsed session correctly
+   advancing to "Short Break, Session 2" on reload.
+3. A local notification is scheduled for session-end via
+   `expo-notifications`, so the user is told when a session finishes even
+   while fully backgrounded — this is the mitigation for "did I miss the
+   end of my session," the failure mode most likely to actually cause an
+   uninstall.
+4. What is still genuinely missing: a persistent notification showing a
+   *live, ticking* countdown while backgrounded. That specifically needs
+   a foreground service. This is a polish gap, not a data-loss gap, given
+   point 2 above — logged as a real v1.1 candidate, not shipped ambiguous.
+
+No `FOREGROUND_SERVICE` permission or service type is declared, correctly,
+because none is implemented.
 
 ## Notifications (API 33+)
 
@@ -93,10 +126,12 @@ device, none of which exist in this environment (see docs/PROGRESS.md).
 - [ ] **TODO (you)** — Draft the actual Data Safety form answers in Play
   Console using the above ("No data collected") — the form itself is filled
   in the console, not in a repo file.
-- [ ] **TODO** — `apps/web/privacy.html` needs a pass to describe the
-  **mobile app's** actual data practice (fully local, no account) in
-  addition to what it already says about the website. Not yet rewritten in
-  this pass — flagged for the next one.
+- [x] **VERIFIED** — `apps/web/privacy.html` has an "Android App
+  (com.studysphere.app)" section describing the mobile app's actual data
+  practice (nothing collected, nothing shared, no server, local export/
+  delete). Also updated to remove the stale admin-panel paragraph after
+  admin.html was deleted from the website (see the website security fix
+  commit). Confirmed live by loading the page in a real browser.
 
 ## Account deletion
 

@@ -115,11 +115,11 @@ export function Button({ label, variant = "primary", loading, style, disabled, .
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? theme.colors.ink : theme.colors.paper} />
+        <ActivityIndicator color={isPrimary ? theme.colors.onAccent : theme.colors.paper} />
       ) : (
         <RNText
           style={{
-            color: isPrimary ? theme.colors.ink : theme.colors.paper,
+            color: isPrimary ? theme.colors.onAccent : theme.colors.paper,
             fontSize: theme.type.body.fontSize,
             fontWeight: "600"
           }}
@@ -173,7 +173,7 @@ export function Divider() {
 export function UrgencyDot({ bucket }: { bucket: "overdue" | "today" | "tomorrow" | "this-week" | "later" | "none" }) {
   const theme = useTheme();
   const color =
-    bucket === "overdue" ? theme.colors.overdue : bucket === "today" ? theme.colors.cyan : theme.colors.mist;
+    bucket === "overdue" ? theme.colors.overdue : bucket === "today" ? theme.colors.accentText : theme.colors.mist;
   const label =
     bucket === "overdue" ? "overdue" :
     bucket === "today" ? "due today" :

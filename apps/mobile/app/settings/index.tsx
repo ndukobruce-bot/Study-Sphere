@@ -14,6 +14,7 @@ import {
 import { usePreferencesStore } from "../../src/store/preferencesStore";
 import type { ThemePreference } from "../../src/store/preferencesStore";
 import { useTheme } from "../../src/theme/ThemeProvider";
+import { MIN_TOUCH_TARGET } from "../../src/theme/tokens";
 
 const THEME_OPTIONS: ThemePreference[] = ["system", "light", "dark"];
 
@@ -105,8 +106,13 @@ export default function Settings() {
             <Pressable
               key={option}
               onPress={() => setThemePreference(option)}
+              accessibilityRole="button"
+              accessibilityLabel={`Theme: ${option}`}
+              accessibilityState={{ selected: themePreference === option }}
               style={{
                 flex: 1,
+                minHeight: MIN_TOUCH_TARGET,
+                justifyContent: "center",
                 paddingVertical: theme.spacing.sm,
                 borderRadius: theme.radius.pill,
                 alignItems: "center",
@@ -115,7 +121,7 @@ export default function Settings() {
                 borderColor: theme.colors.line
               }}
             >
-              <Text variant="label" color={themePreference === option ? theme.colors.ink : theme.colors.paper}>{option}</Text>
+              <Text variant="label" color={themePreference === option ? theme.colors.onAccent : theme.colors.paper}>{option}</Text>
             </Pressable>
           ))}
         </View>
