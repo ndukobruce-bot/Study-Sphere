@@ -17,16 +17,10 @@
       <div class="auth-points">
         <span>Student dashboard</span>
         <span>Consent-first analytics</span>
-        <span>Admin access separated</span>
       </div>
     </section>
 
     <section class="auth-card">
-      <div class="auth-tabs">
-        <button class="active" type="button" data-auth-tab="student">Student Login</button>
-        <button type="button" data-auth-tab="admin">Admin Login</button>
-      </div>
-
       <form id="student-login-form" class="auth-form">
         <label>
           University email
@@ -46,32 +40,12 @@
             <input id="student-course" type="text" placeholder="Computer Science, Year 2" required>
           </label>
         </div>
-        <label>
-          Password
-          <input id="student-password" type="password" placeholder="Create or enter password" required>
-        </label>
         <label class="consent-box">
           <input id="student-consent" type="checkbox" required>
-          <span>I consent to StudySphere storing my email, profile, login activity, and app activity locally so the dashboard and admin analytics can work.</span>
+          <span>I consent to StudySphere storing my email, profile, login activity, and app activity locally on this device.</span>
         </label>
         <button class="btn-primary" type="submit">Enter StudySphere</button>
         <p class="auth-note">New student emails are registered automatically, and your session stays remembered on this device until you log out.</p>
-      </form>
-
-      <form id="admin-login-form" class="auth-form" style="display:none;">
-        <label>
-          Admin email
-          <input id="admin-email" type="email" placeholder="admin@email.com" required>
-        </label>
-        <label>
-          Admin password
-          <input id="admin-password" type="password" placeholder="Admin password" required>
-        </label>
-        <label class="consent-box">
-          <input id="admin-consent" type="checkbox" required>
-          <span>I understand this admin area shows locally stored student emails, login events, active session data, and app activity.</span>
-        </label>
-        <button class="btn-primary" type="submit">Open Admin Access</button>
       </form>
 
       <p class="auth-error" id="auth-error"></p>

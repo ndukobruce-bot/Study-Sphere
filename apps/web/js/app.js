@@ -67,11 +67,6 @@ function updateAuthNav() {
       landingAction.onclick = function() {
         window.location.href = "login.html";
       };
-    } else if (currentUser.role === "admin") {
-      landingAction.textContent = "Admin Panel";
-      landingAction.onclick = function() {
-        window.location.href = "admin.html";
-      };
     } else {
       landingAction.textContent = "Open Dashboard";
       landingAction.onclick = function() {
@@ -89,8 +84,6 @@ function updateAuthNav() {
 
   if (!currentUser) {
     item.innerHTML = `<a href="login.html">Login</a>`;
-  } else if (currentUser.role === "admin") {
-    item.innerHTML = `<a href="admin.html">Admin</a>`;
   } else {
     item.innerHTML = `<a href="#" id="logout-link">Logout</a>`;
   }

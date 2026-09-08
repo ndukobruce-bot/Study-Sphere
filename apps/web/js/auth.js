@@ -1,5 +1,3 @@
-const ADMIN_EMAIL = window.STUDYSPHERE_ADMIN_EMAIL || "ndukobruce@gmail.com";
-const ADMIN_PASSWORD = window.STUDYSPHERE_ADMIN_PASSWORD || "";
 const CURRENT_USER_KEY = "ss_current_user";
 const REMEMBERED_SESSION_KEY = "ss_remembered_session";
 const KNOWN_ACCOUNTS_KEY = "ss_known_accounts";
@@ -11,10 +9,6 @@ function authLoad(key, fallback) {
 
 function authSave(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
-}
-
-function adminAccessDisabled() {
-  return Boolean(window.STUDYSPHERE_DISABLE_ADMIN || window.STUDYSPHERE_MOBILE_BUILD);
 }
 
 function getCurrentUser() {
@@ -149,15 +143,19 @@ function syncAuthToServer(profile, type) {
   });
 }
 
+/**
+ * No password field is written or checked here — this was never real
+ * authentication (client-side, plaintext, trivially bypassed), only a
+ * per-browser profile store. Re-using an email just updates the existing
+ * profile rather than gating on a password match that provided no real
+ * security. See docs/AUDIT.md's security triage and
+ * migrateAwayFromStoredPasswords() below for existing browsers.
+ */
 function upsertStudent(profile) {
   const students = authLoad("ss_students", []);
   const existing = students.find(student => student.email === profile.email);
 
   if (existing) {
-    if (existing.password !== profile.password) {
-      return { ok: false, message: "That email already exists. Please use the same password." };
-    }
-
     Object.assign(existing, profile, {
       loginCount: (existing.loginCount || 0) + 1,
       lastLogin: new Date().toISOString()
@@ -176,28 +174,36 @@ function upsertStudent(profile) {
   return { ok: true };
 }
 
+/**
+ * One-time cleanup for browsers that registered before password storage
+ * was removed: strips the password key out of any existing ss_students
+ * entries. Runs once per browser (guarded by a flag), not on every load.
+ */
+function migrateAwayFromStoredPasswords() {
+  const MIGRATION_KEY = "ss_migration_strip_password_v1";
+  if (localStorage.getItem(MIGRATION_KEY)) return;
+
+  const students = authLoad("ss_students", []);
+  let changed = false;
+  students.forEach(student => {
+    if (Object.prototype.hasOwnProperty.call(student, "password")) {
+      delete student.password;
+      changed = true;
+    }
+  });
+  if (changed) authSave("ss_students", students);
+  localStorage.setItem(MIGRATION_KEY, new Date().toISOString());
+}
+
 function initLoginPage() {
   const studentForm = document.getElementById("student-login-form");
-  const adminForm = document.getElementById("admin-login-form");
-  if (!studentForm || !adminForm) return;
-  configureAdminAccessNotice(adminForm);
+  if (!studentForm) return;
 
   const activeUser = restoreRememberedUser();
   if (activeUser) {
-    window.location.href = activeUser.role === "admin" ? "admin.html" : "dashboard.html";
+    window.location.href = "dashboard.html";
     return;
   }
-
-  document.querySelectorAll("[data-auth-tab]").forEach(button => {
-    button.onclick = function() {
-      const tab = button.dataset.authTab;
-      document.querySelectorAll("[data-auth-tab]").forEach(btn => btn.classList.remove("active"));
-      button.classList.add("active");
-      studentForm.style.display = tab === "student" ? "grid" : "none";
-      adminForm.style.display = tab === "admin" ? "grid" : "none";
-      setAuthError("");
-    };
-  });
 
   studentForm.addEventListener("submit", function(event) {
     event.preventDefault();
@@ -212,7 +218,6 @@ function initLoginPage() {
       name: document.getElementById("student-name").value.trim(),
       university: document.getElementById("student-university").value.trim(),
       course: document.getElementById("student-course").value.trim(),
-      password: document.getElementById("student-password").value,
       consented: true
     };
 
@@ -236,57 +241,6 @@ function initLoginPage() {
     syncAuthToServer(profile, "login");
     window.location.href = "dashboard.html";
   });
-
-  adminForm.addEventListener("submit", function(event) {
-    event.preventDefault();
-    if (adminAccessDisabled() || !ADMIN_PASSWORD) {
-      setAuthError("Admin access is disabled in this build. Use the hosted admin backend for production analytics.");
-      return;
-    }
-
-    const email = document.getElementById("admin-email").value.trim().toLowerCase();
-    const password = document.getElementById("admin-password").value;
-    const consent = document.getElementById("admin-consent").checked;
-
-    if (!consent) {
-      setAuthError("Admin consent is required before opening analytics.");
-      return;
-    }
-
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-      setAuthError("Admin email or password is incorrect.");
-      return;
-    }
-
-    const adminSession = {
-      email: ADMIN_EMAIL,
-      name: "Nduko Bruce",
-      role: "admin",
-      consented: true,
-      loginAt: new Date().toISOString()
-    };
-    setCurrentUser(adminSession);
-    recordLoginEvent(ADMIN_EMAIL, "admin", "login");
-    syncAuthToServer({ email: ADMIN_EMAIL, name: "Nduko Bruce", role: "admin", consented: true }, "login");
-    window.location.href = "admin.html";
-  });
-}
-
-function configureAdminAccessNotice(adminForm) {
-  if (!adminAccessDisabled() && ADMIN_PASSWORD) return;
-
-  const adminTab = document.querySelector("[data-auth-tab='admin']");
-  if (adminTab) {
-    adminTab.disabled = true;
-    adminTab.textContent = "Admin Disabled";
-  }
-
-  adminForm.innerHTML = `
-    <div class="release-notice">
-      <strong>Admin access is not available in this app build.</strong>
-      <span>Production admin analytics must run from a secured backend, not from credentials shipped inside the public Android app.</span>
-    </div>
-  `;
 }
 
 function setAuthError(message) {
@@ -304,183 +258,9 @@ function requireAuth() {
     window.location.href = "login.html";
     return;
   }
-
-  if (path === "admin.html" && (adminAccessDisabled() || user.role !== "admin")) {
-    window.location.href = "dashboard.html";
-  }
 }
 
-function initAdminPage() {
-  if (!document.getElementById("admin-total-logins")) return;
-
-  const user = getCurrentUser();
-  if (adminAccessDisabled() || !user || user.role !== "admin") {
-    window.location.href = "login.html";
-    return;
-  }
-
-  const students = authLoad("ss_students", []);
-  const events = authLoad("ss_login_events", []);
-  const tasks = authLoad("ss_tasks", []);
-  const plans = authLoad("ss_plans", []);
-  const exams = authLoad("ss_exams", []);
-  const pomodoros = authLoad("ss_pomodoros", {});
-  const notes = authLoad("ss_notes", []);
-  const flashcards = authLoad("ss_flashcards", []);
-  const grades = authLoad("ss_grades", []);
-  const files = authLoad("ss_files", []);
-  const groups = authLoad("ss_groups", []);
-  const knownAccounts = authLoad(KNOWN_ACCOUNTS_KEY, []);
-  const activeUsers = knownAccounts.filter(account => {
-    if (!account.lastSeenAt) return false;
-    return Date.now() - new Date(account.lastSeenAt).getTime() < 1000 * 60 * 30;
-  }).length;
-  const consented = students.filter(student => student.consented).length;
-
-  setAdminText("admin-total-logins", events.filter(event => event.type === "login").length);
-  setAdminText("admin-total-users", knownAccounts.length || students.length);
-  setAdminText("admin-active-user", activeUsers);
-  setAdminText("admin-consent-rate", students.length ? Math.round((consented / students.length) * 100) + "%" : "0%");
-
-  renderAdminUsers(students);
-  renderAdminEvents(events);
-  const data = { tasks, plans, exams, pomodoros, students, knownAccounts, events, notes, flashcards, grades, files, groups, currentUser: user };
-  renderAdminDataGrid(data);
-  renderAdminSnapshot(data);
-  initAdminActions(data);
-  renderBackendAdminOverview();
-
-  const logout = document.getElementById("admin-logout-btn");
-  if (logout) logout.onclick = logoutUser;
-}
-
-function renderAdminUsers(students) {
-  const list = document.getElementById("admin-user-list");
-  if (!list) return;
-  list.innerHTML = students.length === 0 ? `<p class="empty-panel">No student logins yet.</p>` : "";
-
-  students.forEach(student => {
-    const item = document.createElement("div");
-    item.className = "admin-list-item";
-    item.innerHTML = `
-      <strong>${escapeAuthHtml(student.email)}</strong>
-      <span>${escapeAuthHtml(student.name)} - ${escapeAuthHtml(student.university)} - ${escapeAuthHtml(student.course)}</span>
-      <small>${student.loginCount || 0} login${student.loginCount === 1 ? "" : "s"}</small>
-    `;
-    list.appendChild(item);
-  });
-}
-
-function renderAdminEvents(events) {
-  const list = document.getElementById("admin-login-list");
-  if (!list) return;
-  const recent = events.slice().reverse().slice(0, 10);
-  list.innerHTML = recent.length === 0 ? `<p class="empty-panel">No login events yet.</p>` : "";
-
-  recent.forEach(event => {
-    const item = document.createElement("div");
-    item.className = "admin-list-item";
-    item.innerHTML = `
-      <strong>${escapeAuthHtml(event.email)}</strong>
-      <span>${escapeAuthHtml(event.role)} ${escapeAuthHtml(event.type)}</span>
-      <small>${new Date(event.at).toLocaleString()}</small>
-    `;
-    list.appendChild(item);
-  });
-}
-
-function renderAdminDataGrid(data) {
-  const grid = document.getElementById("admin-data-grid");
-  if (!grid) return;
-
-  const totalPomodoros = Object.keys(data.pomodoros).reduce((sum, key) => sum + data.pomodoros[key], 0);
-  const cards = [
-    ["Tasks", data.tasks.length],
-    ["Plans", data.plans.length],
-    ["Exams", data.exams.length],
-    ["Pomodoros", totalPomodoros],
-    ["Students", data.students.length],
-    ["Known Accounts", (data.knownAccounts || []).length],
-    ["Events", data.events.length],
-    ["Notes", data.notes.length],
-    ["Flashcards", data.flashcards.length],
-    ["Grades", data.grades.length],
-    ["Files", data.files.length],
-    ["Groups", data.groups.length]
-  ];
-
-  grid.innerHTML = "";
-  cards.forEach(card => {
-    const item = document.createElement("div");
-    item.className = "analytics-card";
-    item.innerHTML = `<span>${card[0]}</span><strong>${card[1]}</strong>`;
-    grid.appendChild(item);
-  });
-}
-
-function renderAdminSnapshot(data) {
-  const snapshot = document.getElementById("admin-snapshot");
-  if (!snapshot) return;
-  snapshot.textContent = JSON.stringify(data, null, 2);
-}
-
-function initAdminActions(data) {
-  const exportBtn = document.getElementById("admin-export-btn");
-  const announcementBtn = document.getElementById("admin-announcement-btn");
-  if (exportBtn) {
-    exportBtn.onclick = function() {
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "studysphere-admin-export.json";
-      link.click();
-      URL.revokeObjectURL(url);
-    };
-  }
-  if (announcementBtn) {
-    announcementBtn.onclick = function() {
-      const input = document.getElementById("admin-announcement");
-      localStorage.setItem("ss_admin_announcement", input.value.trim());
-      input.value = "";
-    };
-  }
-}
-
-function renderBackendAdminOverview() {
-  const grid = document.getElementById("admin-backend-grid");
-  if (!grid || typeof fetch !== "function") return;
-
-  fetch("/api/db/admin/overview")
-    .then(response => response.ok ? response.json() : null)
-    .then(data => {
-      if (!data) {
-        grid.innerHTML = `<p class="empty-panel">Backend database is not available in static mode.</p>`;
-        return;
-      }
-      grid.innerHTML = `
-        <div class="analytics-card"><span>Server Students</span><strong>${data.totals.students}</strong></div>
-        <div class="analytics-card"><span>Server Activity</span><strong>${data.totals.activityEvents}</strong></div>
-        <div class="analytics-card"><span>Free Access</span><strong>Enabled</strong></div>
-      `;
-    })
-    .catch(function() {
-      grid.innerHTML = `<p class="empty-panel">Backend database is not available in static mode.</p>`;
-    });
-}
-
-function setAdminText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value;
-}
-
-function escapeAuthHtml(text) {
-  const div = document.createElement("div");
-  div.appendChild(document.createTextNode(text || ""));
-  return div.innerHTML;
-}
-
+migrateAwayFromStoredPasswords();
 restoreRememberedUser();
 requireAuth();
 initLoginPage();
-initAdminPage();
